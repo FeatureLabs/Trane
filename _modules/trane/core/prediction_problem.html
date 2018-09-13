@@ -2,17 +2,18 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>trane.core.prediction_problem &#8212; trane  documentation</title>
+    <title>trane.core.prediction_problem &#8212; Trane 0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -27,25 +28,31 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for trane.core.prediction_problem</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
+<span class="kn">import</span> <span class="nn">dill</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
+<span class="kn">from</span> <span class="nn">..ops.aggregation_ops</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">..ops.filter_ops</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
 <span class="kn">from</span> <span class="nn">..ops.op_saver</span> <span class="k">import</span> <span class="n">op_from_json</span><span class="p">,</span> <span class="n">op_to_json</span>
+<span class="kn">from</span> <span class="nn">..ops.row_ops</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">..ops.transformation_ops</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
 <span class="kn">from</span> <span class="nn">..utils.table_meta</span> <span class="k">import</span> <span class="n">TableMeta</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PredictionProblem&#39;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="PredictionProblem"><a class="viewcode-back" href="../../../trane.core.html#trane.core.prediction_problem.PredictionProblem">[docs]</a><span class="k">class</span> <span class="nc">PredictionProblem</span><span class="p">:</span>
+<div class="viewcode-block" id="PredictionProblem"><a class="viewcode-back" href="../../trane.core.html#trane.core.prediction_problem.PredictionProblem">[docs]</a><span class="k">class</span> <span class="nc">PredictionProblem</span><span class="p">:</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prediction Problem is made up of a series of Operations. It also contains</span>
@@ -53,223 +60,167 @@
 <span class="sd">    each operation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operations</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operations</span><span class="p">,</span> <span class="n">entity_id_col</span><span class="p">,</span>
+                 <span class="n">label_col</span><span class="p">,</span> <span class="n">table_meta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff_strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        operations: list of Operations of type op_base</span>
+<span class="sd">        cutoff_strategy: a CutoffStrategy object</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">operations</span> <span class="o">=</span> <span class="n">operations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filter_column_order_of_types</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">label_generating_column_order_of_types</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_id_col</span> <span class="o">=</span> <span class="n">entity_id_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_col</span> <span class="o">=</span> <span class="n">label_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_meta</span> <span class="o">=</span> <span class="n">table_meta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_strategy</span> <span class="o">=</span> <span class="n">cutoff_strategy</span>
 
-<div class="viewcode-block" id="PredictionProblem.is_valid_prediction_problem"><a class="viewcode-back" href="../../../trane.core.html#trane.core.prediction_problem.PredictionProblem.is_valid_prediction_problem">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_prediction_problem</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">table_meta</span><span class="p">,</span> <span class="n">filter_column</span><span class="p">,</span> <span class="n">label_generating_column</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Checks that a prediction problem is valid. Ensures the input output</span>
-<span class="sd">        types of operations match.</span>
+<div class="viewcode-block" id="PredictionProblem.is_valid"><a class="viewcode-back" href="../../trane.core.html#trane.core.prediction_problem.PredictionProblem.is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_meta</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Typechecking for operations. Insures that their input and output types</span>
+<span class="sd">        match. Allows a user to use the problem&#39;s existing table_meta, or pass</span>
+<span class="sd">        in a new one</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        table_meta: TableMeta object. Contains</span>
-<span class="sd">            meta information about the data</span>
-<span class="sd">        filter_column: column name of the column</span>
-<span class="sd">            to be filtered over</span>
-<span class="sd">        label_generating_column: column name of the</span>
-<span class="sd">            column of interest in the data</span>
+<span class="sd">        table_meta: TableMeta object. Contains meta information about the data</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        is_valid: True/False if problem is valid</span>
-<span class="sd">        filter_column_order_of_types: a list containing the types expected in the</span>
-<span class="sd">            sequence of operations on the filter column</span>
-<span class="sd">        label_generating_column_order_of_types: a list containing the types expected</span>
-<span class="sd">            in the sequence of operations on the label generating column</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing is_valid_prediction_problem...&quot;</span><span class="p">)</span>
+<span class="sd">        Bool</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># don&#39;t contaminate original table_meta</span>
+        <span class="k">if</span> <span class="n">table_meta</span><span class="p">:</span>
+            <span class="n">temp_meta</span> <span class="o">=</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">temp_meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_meta</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        <span class="n">temp_meta</span> <span class="o">=</span> <span class="n">table_meta</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-        <span class="n">filter_column_order_of_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">table_meta</span><span class="o">.</span><span class="n">get_type</span><span class="p">(</span><span class="n">filter_column</span><span class="p">)]</span>
-        <span class="n">label_generating_column_order_of_types</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">table_meta</span><span class="o">.</span><span class="n">get_type</span><span class="p">(</span><span class="n">label_generating_column</span><span class="p">)]</span>
-
-        <span class="n">filter_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">temp_meta</span> <span class="o">=</span> <span class="n">filter_op</span><span class="o">.</span><span class="n">op_type_check</span><span class="p">(</span><span class="n">temp_meta</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">temp_meta</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-        <span class="n">filter_column_order_of_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_meta</span><span class="o">.</span><span class="n">get_type</span><span class="p">(</span><span class="n">filter_column</span><span class="p">))</span>
-
-        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="c1"># sort each operation in its respective bucket</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
+            <span class="c1"># op.type_check returns a modified temp_meta,</span>
+            <span class="c1"># which accounts for the operation having taken place</span>
             <span class="n">temp_meta</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">op_type_check</span><span class="p">(</span><span class="n">temp_meta</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">temp_meta</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-            <span class="n">label_generating_column_order_of_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">temp_meta</span><span class="o">.</span><span class="n">get_type</span><span class="p">(</span><span class="n">label_generating_column</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">temp_meta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">filter_column_order_of_types</span> <span class="o">=</span> <span class="n">filter_column_order_of_types</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">label_generating_column_order_of_types</span> <span class="o">=</span> <span class="n">label_generating_column_order_of_types</span>  <span class="c1"># noqa</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
-        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">filter_column_order_of_types</span><span class="p">,</span>
-                <span class="n">label_generating_column_order_of_types</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PredictionProblem.execute"><a class="viewcode-back" href="../../trane.core.html#trane.core.prediction_problem.PredictionProblem.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Executes the problem&#39;s operations on a dataframe. Generates</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
-<div class="viewcode-block" id="PredictionProblem.set_hyper_parameters"><a class="viewcode-back" href="../../../trane.core.html#trane.core.prediction_problem.PredictionProblem.set_hyper_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">set_hyper_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hyper_parameters</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_meta</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Your Problem</span><span class="se">\&#39;</span><span class="s1">s specified operations do not match with the &#39;</span>
+                <span class="s1">&#39;problem</span><span class="se">\&#39;</span><span class="s1">s table meta. Therefore, the problem is not &#39;</span>
+                <span class="s1">&#39;valid.&#39;</span><span class="p">)</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        hyper_parameters: hyper parameter settings</span>
-<span class="sd">            to be set on the operations</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity_id_col</span><span class="p">)</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">op</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">):</span>
-            <span class="n">hyper_parameter</span> <span class="o">=</span> <span class="n">hyper_parameters</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-            <span class="n">op</span><span class="o">.</span><span class="n">set_hyper_parameter</span><span class="p">(</span><span class="n">hyper_parameter</span><span class="p">)</span></div>
+        <span class="n">res_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="PredictionProblem.generate_and_set_hyper_parameters"><a class="viewcode-back" href="../../../trane.core.html#trane.core.prediction_problem.PredictionProblem.generate_and_set_hyper_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">generate_and_set_hyper_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">label_generating_column</span><span class="p">,</span>
-                                          <span class="n">filter_column</span><span class="p">,</span> <span class="n">entity_id_column</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate then set hyper parameters for the operations in this prediction problem.</span>
+        <span class="k">for</span> <span class="n">entity_id</span><span class="p">,</span> <span class="n">df_group</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">:</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        dataframe: data</span>
-<span class="sd">        label_generating_column: column name of the</span>
-<span class="sd">            column of interest in the data</span>
-<span class="sd">        filter_column: column name of the column</span>
-<span class="sd">            to be filtered over</span>
-<span class="sd">        entity_id_column: column name of</span>
-<span class="sd">            the column containing entities in the data</span>
+            <span class="c1"># generate the a cutoff date if the problem has a cutoff strategy</span>
+            <span class="n">cutoff</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_strategy</span><span class="p">:</span>
+                <span class="n">cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_strategy</span><span class="o">.</span><span class="n">generate_fn</span><span class="p">(</span>
+                    <span class="n">df_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_id_col</span><span class="p">)</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hyper_parameters: list of hyper parameter settings</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing generate_and_set_hyper_parameters...&quot;</span><span class="p">)</span>
+            <span class="n">label_series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_operations_on_df</span><span class="p">(</span>
+                <span class="n">df_group</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">label_col</span><span class="p">]</span>
 
-        <span class="n">hyper_parameters</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># add the label to the results dictionary</span>
+            <span class="n">res_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert_single_label_into_dict</span><span class="p">(</span>
+                <span class="n">entity_id</span><span class="p">,</span> <span class="n">label_series</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">res_dict</span><span class="p">)</span>
 
-        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">FRACTION_OF_DATA_TARGET</span> <span class="o">=</span> <span class="mf">0.8</span>
-        <span class="n">operation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">res_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rename_columns</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">entity_id_col</span><span class="p">,</span> <span class="s1">&#39;cutoff&#39;</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">res</span></div>
 
-        <span class="n">value</span> <span class="o">=</span> <span class="n">select_by_remaining</span><span class="p">(</span>
-            <span class="n">FRACTION_OF_DATA_TARGET</span><span class="p">,</span>
-            <span class="n">dataframe</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">filter_column</span>
-        <span class="p">)</span>
-
-        <span class="n">hyper_parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">operation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="n">value</span><span class="p">,</span> <span class="n">dataframe</span> <span class="o">=</span> <span class="n">select_by_diversity</span><span class="p">(</span>
-                <span class="n">dataframe</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span>
-                <span class="n">label_generating_column</span><span class="p">,</span>
-                <span class="n">entity_id_column</span><span class="p">)</span>
-            <span class="n">hyper_parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_hyper_parameters</span><span class="p">(</span><span class="n">hyper_parameters</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hyper_parameters</span></div>
-
-<div class="viewcode-block" id="PredictionProblem.execute"><a class="viewcode-back" href="../../../trane.core.html#trane.core.prediction_problem.PredictionProblem.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">label_cutoff_time</span><span class="p">,</span>
-                <span class="n">filter_column_order_of_types</span><span class="p">,</span>
-                <span class="n">label_generating_column_order_of_types</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This function executes all the operations on the dataframe</span>
-<span class="sd">        and returns the output. The output is two values. The</span>
-<span class="sd">        first value is the result of executing on all data before</span>
-<span class="sd">        the label_cutoff_time. The second value is the result</span>
-<span class="sd">        of executing on all data, including that after the</span>
-<span class="sd">        label_cutoff_time.</span>
-
-<span class="sd">        See paper:</span>
-<span class="sd">        &quot;What would a data scientist ask? Automatically</span>
-<span class="sd">        formulating and solving predicton problems.&quot;</span>
+    <span class="k">def</span> <span class="nf">_insert_single_label_into_dict</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">,</span> <span class="n">label_series</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">res_dict</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Inserts a single row of a dataframe into the passed dictionary and</span>
+<span class="sd">        returns it.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataframe: data to be executed on</span>
-<span class="sd">        time_column: column name of the column</span>
-<span class="sd">            containing time information in the data</span>
-<span class="sd">        label_cutoff_time: the time at which the data</span>
-<span class="sd">            is segmented. data after the time is used for</span>
-<span class="sd">            labels during test. data before the time is used</span>
-<span class="sd">            for labels during training.</span>
-<span class="sd">        filter_column_order_of_types: a list containing the types expected in the</span>
-<span class="sd">            sequence of operations on the filter column</span>
-<span class="sd">        label_generating_column_order_of_types: a list containing the types expected</span>
-<span class="sd">            in the sequence of operations on the label generating column</span>
+<span class="sd">        label_df: dataframe</span>
+<span class="sd">        cutoff: cutoff time</span>
+<span class="sd">        res_dict: dictionary with key entity_id and value a two part tuple:</span>
+<span class="sd">            (cutoff time, binary label)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        pre_label_cutoff_time_execution_result: label for training time segment</span>
-<span class="sd">        all_data_execution_result: label for testing (all time) time segment</span>
+<span class="sd">        dictionary</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">num_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_series</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_rows</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Operations returned more than 1 result for entity &quot;</span> <span class="o">+</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">entity_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;. This probably means you forgot to &quot;</span> <span class="o">+</span>
+                <span class="s2">&quot;add an aggregation operation. Arbitrarily picking the &quot;</span> <span class="o">+</span>
+                <span class="s2">&quot;first result.&quot;</span><span class="p">,</span>
+                <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">num_rows</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Operation returned fewer than 1 result for entity &quot;</span> <span class="o">+</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">entity_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;. Returning an unedited res_dict&quot;</span><span class="p">,</span>
+                <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_rows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">group_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">label_series</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">res_dict</span><span class="p">[</span><span class="n">entity_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">group_tuple</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">time_column</span><span class="p">)</span>
-        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res_dict</span>
 
-        <span class="n">pre_label_cutoff_time_execution_result</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span>
-            <span class="n">dataframe</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">label_cutoff_time</span><span class="p">]</span>
-        <span class="n">all_data_execution_result</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span>
-            <span class="n">dataframe</span><span class="p">[</span><span class="n">time_column</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">label_cutoff_time</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">_rename_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">column_list</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Renames columns in a given dataframe, in order, as the column_list.</span>
 
-        <span class="n">continue_executing_on_precutoff_df</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">continue_executing_on_all_data_df</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="sd">        This is required because of support for Python 2.7 and Pandas 0.21</span>
+<span class="sd">        A more modern way is to pass columns=df.columns</span>
+<span class="sd">            into pd.DataFrame.from_dict.</span>
 
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">operation</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">):</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df: DataFrame whose columns will be renamed</span>
+<span class="sd">        column_list: list of column names</span>
 
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Beginning execution of operation: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operation</span><span class="p">))</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dataframe with renamed columns</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col_num</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="n">rename_dict</span><span class="p">[</span><span class="n">col_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_list</span><span class="p">[</span><span class="n">col_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pre_label_cutoff_time_execution_result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">continue_executing_on_precutoff_df</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">column_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">rename_dict</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_data_execution_result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">continue_executing_on_all_data_df</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">_execute_operations_on_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Execute operations on df. This method assumes that data leakage/cutoff</span>
+<span class="sd">            times have already been taken into account, and just blindly</span>
+<span class="sd">            executes the operations.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df: dataframe to be operated on</span>
 
-            <span class="k">if</span> <span class="n">continue_executing_on_all_data_df</span><span class="p">:</span>
-                <span class="n">single_piece_of_data</span> <span class="o">=</span> <span class="n">all_data_execution_result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span>
-                    <span class="mi">0</span><span class="p">][</span><span class="n">operation</span><span class="o">.</span><span class="n">column_name</span><span class="p">]</span>
-
-                <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">check_type</span><span class="p">(</span>
-                        <span class="n">filter_column_order_of_types</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
-                        <span class="n">single_piece_of_data</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">check_type</span><span class="p">(</span>
-                        <span class="n">label_generating_column_order_of_types</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
-                        <span class="n">single_piece_of_data</span><span class="p">)</span>
-
-                <span class="n">all_data_execution_result</span> <span class="o">=</span> <span class="n">operation</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="n">all_data_execution_result</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_data_execution_result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">continue</span>
-
-                <span class="n">single_piece_of_data</span> <span class="o">=</span> <span class="n">all_data_execution_result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span>
-                    <span class="n">operation</span><span class="o">.</span><span class="n">column_name</span><span class="p">]</span>
-
-                <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">check_type</span><span class="p">(</span>
-                        <span class="n">filter_column_order_of_types</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
-                        <span class="n">single_piece_of_data</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">check_type</span><span class="p">(</span>
-                        <span class="n">label_generating_column_order_of_types</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
-                        <span class="n">single_piece_of_data</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">continue_executing_on_precutoff_df</span><span class="p">:</span>
-                <span class="n">pre_label_cutoff_time_execution_result</span> <span class="o">=</span> <span class="n">operation</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="n">pre_label_cutoff_time_execution_result</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">pre_label_cutoff_time_execution_result</span><span class="p">,</span> <span class="n">all_data_execution_result</span></div>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        df: dataframe after operations</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">operation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">operation</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -281,20 +232,266 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        description: natural language description</span>
+<span class="sd">        description: str natural language description of the problem</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">last_op_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">operation</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">):</span>
-            <span class="n">description</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">idx</span> <span class="o">!=</span> <span class="n">last_op_idx</span><span class="p">:</span>
-                <span class="n">description</span> <span class="o">+=</span> <span class="s2">&quot;-&gt;&quot;</span>
+        <span class="n">desc_arr</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;For each &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_id_col</span> <span class="o">+</span> <span class="s1">&#39; predict&#39;</span>
+        <span class="c1"># cycle through each operation to create dataops</span>
+        <span class="c1"># dataops are a series of operations containing one and only one</span>
+        <span class="c1"># aggregation op at its end</span>
+        <span class="n">dataop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
+            <span class="n">op_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+            <span class="n">dataop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">op_type</span><span class="p">,</span> <span class="n">AggregationOpBase</span><span class="p">):</span>
+                <span class="c1"># describe each dataop</span>
+                <span class="n">desc_arr</span> <span class="o">=</span> <span class="n">desc_arr</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_describe_dataop</span><span class="p">(</span><span class="n">dataop</span><span class="p">)</span>
+                <span class="n">dataop</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># cycle through ops, pick out filters and describe them</span>
+        <span class="n">filterop_desc_arr</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">),</span> <span class="n">FilterOpBase</span><span class="p">):</span>
+                <span class="n">filterop_desc_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_describe_filter</span><span class="p">(</span><span class="n">op</span><span class="p">))</span>
+
+        <span class="c1"># join filter ops with ands and append to the description</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filterop_desc_arr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filterop_desc_arr</span><span class="p">)</span>
+
+        <span class="c1"># join the dataops together with &#39; of &#39;</span>
+        <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39; of &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">desc_arr</span><span class="p">)</span>
+
+        <span class="c1"># add the cutoff strategy description if it exists</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_strategy</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_strategy</span><span class="o">.</span><span class="n">description</span>
+
         <span class="k">return</span> <span class="n">description</span>
 
-<div class="viewcode-block" id="PredictionProblem.to_json"><a class="viewcode-back" href="../../../trane.core.html#trane.core.prediction_problem.PredictionProblem.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_describe_dataop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataop</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This function converts Prediction Problems to JSON</span>
+<span class="sd">        A DataOp is a series of non-aggregation operations ending with one and</span>
+<span class="sd">        only one aggregation op.</span>
+
+<span class="sd">        In a dataop, filter operations are ignored. (They are dealt with</span>
+<span class="sd">        elsewhere.) The NL description puts the agg op first, followed other</span>
+<span class="sd">        operations in linear (left to right order.)</span>
+
+<span class="sd">        So an operation which is row_op -&gt; trans_op -&gt; agg_op will be written</span>
+<span class="sd">        as agg_op OF trans_op OF row_op.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">descriptions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">agg_op</span> <span class="o">=</span> <span class="n">dataop</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">agg_op</span><span class="p">),</span> <span class="n">AggregationOpBase</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Last operation of dataop must be an aggregation op. &#39;</span>
+                <span class="s1">&#39;It is currently a &#39;</span> <span class="o">+</span> <span class="nb">type</span><span class="p">(</span><span class="n">agg_op</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+        <span class="n">descriptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_describe_aggop</span><span class="p">(</span><span class="n">agg_op</span><span class="p">))</span>
+        <span class="c1"># remove the last operation (aggregation) and reverse the list</span>
+        <span class="n">dataop</span> <span class="o">=</span> <span class="n">dataop</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">dataop</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">dataop</span><span class="p">:</span>
+            <span class="n">op_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">op_type</span><span class="p">,</span> <span class="n">FilterOpBase</span><span class="p">):</span>
+                <span class="c1"># filter ops are described seperately</span>
+                <span class="k">break</span>
+            <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">op_type</span><span class="p">,</span> <span class="n">AggregationOpBase</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;There is more than one aggreagation op in your dataop. &#39;</span>
+                    <span class="s1">&#39;A dataop must contain one and only one aggregation &#39;</span>
+                    <span class="s1">&#39; at its end.&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">op_type</span><span class="p">,</span> <span class="n">TransformationOpBase</span><span class="p">):</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_describe_transop</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">op_type</span><span class="p">,</span> <span class="n">RowOpBase</span><span class="p">):</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_describe_rowop</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+            <span class="n">descriptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+
+        <span class="c1"># add the cutoff strategy description</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_strategy</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_strategy</span><span class="o">.</span><span class="n">description</span>
+
+        <span class="k">return</span> <span class="n">descriptions</span>
+
+    <span class="k">def</span> <span class="nf">_describe_aggop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+            <span class="n">agg_op_str_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">FirstAggregationOp</span><span class="p">:</span> <span class="s2">&quot;the first&quot;</span><span class="p">,</span>
+                <span class="n">LastAggregationOp</span><span class="p">:</span> <span class="s2">&quot;the last&quot;</span><span class="p">,</span>
+                <span class="n">CountAggregationOp</span><span class="p">:</span> <span class="s2">&quot;the number of&quot;</span><span class="p">,</span>
+                <span class="n">SumAggregationOp</span><span class="p">:</span> <span class="s2">&quot;the sum of&quot;</span><span class="p">,</span>
+                <span class="n">LMFAggregationOp</span><span class="p">:</span> <span class="s2">&quot;the last minus first&quot;</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">input_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_BOOL</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">op</span><span class="p">,</span> <span class="n">SumAggregationOp</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s2">&quot; the number of records whose&quot;</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="ow">in</span> <span class="n">agg_op_str_dict</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">agg_op_str_dict</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_describe_rowop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+        <span class="n">row_op_str_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">GreaterRowOp</span><span class="p">:</span> <span class="s2">&quot;greater than&quot;</span><span class="p">,</span>
+            <span class="n">EqRowOp</span><span class="p">:</span> <span class="s2">&quot;equal to&quot;</span><span class="p">,</span>
+            <span class="n">NeqRowOp</span><span class="p">:</span> <span class="s2">&quot;not equal to&quot;</span><span class="p">,</span>
+            <span class="n">LessRowOp</span><span class="p">:</span> <span class="s2">&quot;less than&quot;</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">IdentityRowOp</span><span class="p">):</span>
+            <span class="c1"># return &quot; {col}&quot;.format(col=op.column_name)</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">ExpRowOp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot; the exp of </span><span class="si">{col}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">column_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="ow">in</span> <span class="n">row_op_str_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot; </span><span class="si">{col}</span><span class="s2"> is </span><span class="si">{op}</span><span class="s2"> </span><span class="si">{threshold}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">col</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">row_op_str_dict</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)],</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">hyper_parameter_settings</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s2">&quot; (unknown row op)&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_describe_transop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">IdentityTransformationOp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">DiffTransformationOp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;fluctuation of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">column_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">ObjectFrequencyTransformationOp</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;frequency of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">column_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_describe_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+        <span class="n">filter_op_str_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">GreaterFilterOp</span><span class="p">:</span> <span class="s2">&quot;greater than&quot;</span><span class="p">,</span>
+            <span class="n">EqFilterOp</span><span class="p">:</span> <span class="s2">&quot;equal to&quot;</span><span class="p">,</span>
+            <span class="n">NeqFilterOp</span><span class="p">:</span> <span class="s2">&quot;not equal to&quot;</span><span class="p">,</span>
+            <span class="n">LessFilterOp</span><span class="p">:</span> <span class="s2">&quot;less than&quot;</span><span class="p">}</span>
+
+        <span class="n">filter_ops</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">FilterOpBase</span><span class="p">)]</span>
+
+        <span class="c1"># remove AllFilterOp</span>
+        <span class="n">filter_ops</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">filter_ops</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">AllFilterOp</span><span class="p">)]</span>
+
+        <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39; with &#39;</span>
+        <span class="n">last_op_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filter_ops</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">op</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filter_ops</span><span class="p">):</span>
+            <span class="n">op_desc</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{col}</span><span class="s1"> </span><span class="si">{op}</span><span class="s1"> </span><span class="si">{threshold}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">col</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">column_name</span><span class="p">,</span>
+                <span class="n">op</span><span class="o">=</span><span class="n">filter_op_str_dict</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)],</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">hyper_parameter_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;threshold&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+            <span class="n">desc</span> <span class="o">+=</span> <span class="n">op_desc</span>
+
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">!=</span> <span class="n">last_op_idx</span><span class="p">:</span>
+                <span class="n">desc</span> <span class="o">+=</span> <span class="s1">&#39; and &#39;</span>
+
+        <span class="k">return</span> <span class="n">desc</span>
+
+<div class="viewcode-block" id="PredictionProblem.save"><a class="viewcode-back" href="../../trane.core.html#trane.core.prediction_problem.PredictionProblem.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">problem_name</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Saves the pediction problem in two files.</span>
+
+<span class="sd">        One file is a dill of the cutoff strategy.</span>
+<span class="sd">        The other file is the jsonified operations and the relative path to</span>
+<span class="sd">        that cutoff strategy.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path: str - the directory in which save the problem</span>
+<span class="sd">        problem_name: str - the filename to assign the problem</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">        {&#39;saved_correctly&#39;: bool,</span>
+<span class="sd">         &#39;directory_created&#39;: bool,</span>
+<span class="sd">         &#39;problem_name&#39;: str}</span>
+<span class="sd">        The new problem_name may have changed due to a filename collision</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">json_saved</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">dill_saved</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">created_directory</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># create directory if it doesn&#39;t exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">created_directory</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># rename the problem_name if already exists</span>
+        <span class="n">json_file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">problem_name</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">))</span>
+        <span class="n">dill_file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">problem_name</span> <span class="o">+</span> <span class="s1">&#39;.dill&#39;</span><span class="p">))</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">json_file_exists</span> <span class="ow">or</span> <span class="n">dill_file_exists</span><span class="p">:</span>
+            <span class="n">problem_name</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">json_file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">problem_name</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">))</span>
+            <span class="n">dill_file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">problem_name</span> <span class="o">+</span> <span class="s1">&#39;.dill&#39;</span><span class="p">))</span>
+
+        <span class="c1"># get the cutoff_strategy bytes</span>
+        <span class="n">cutoff_dill_bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dill_cutoff_strategy</span><span class="p">()</span>
+
+        <span class="c1"># add a key to the problem json</span>
+        <span class="n">json_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+        <span class="n">json_dict</span><span class="p">[</span><span class="s1">&#39;cutoff_dill&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">problem_name</span> <span class="o">+</span> <span class="s1">&#39;.dill&#39;</span>
+
+        <span class="c1"># write the files</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">problem_name</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">json_dict</span><span class="p">,</span> <span class="n">fp</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">json_saved</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">problem_name</span> <span class="o">+</span> <span class="s1">&#39;.dill&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cutoff_dill_bytes</span><span class="p">)</span>
+            <span class="n">dill_saved</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span><span class="p">({</span><span class="s1">&#39;saved_correctly&#39;</span><span class="p">:</span> <span class="n">json_saved</span> <span class="o">&amp;</span> <span class="n">dill_saved</span><span class="p">,</span>
+                <span class="s1">&#39;created_directory&#39;</span><span class="p">:</span> <span class="n">created_directory</span><span class="p">,</span>
+                <span class="s1">&#39;problem_name&#39;</span><span class="p">:</span> <span class="n">problem_name</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="PredictionProblem.load"><a class="viewcode-back" href="../../trane.core.html#trane.core.prediction_problem.PredictionProblem.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">json_file_path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Load a prediction problem from json file.</span>
+<span class="sd">        If the file links to a dill (binary) cutoff_srategy, also load that</span>
+<span class="sd">        and assign it to the prediction problem.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        json_file_path: str, path and filename for the json file</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PredictionProblem</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">problem_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">problem</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">problem_dict</span><span class="p">)</span>
+
+        <span class="n">cutoff_strategy_file_name</span> <span class="o">=</span> <span class="n">problem_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cutoff_dill&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cutoff_strategy_file_name</span><span class="p">:</span>
+            <span class="c1"># reconstruct cutoff strategy filename</span>
+            <span class="n">pickle_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">),</span> <span class="n">cutoff_strategy_file_name</span><span class="p">)</span>
+
+            <span class="c1"># load cutoff strategy from file</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">cutoff_strategy</span> <span class="o">=</span> <span class="n">dill</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+            <span class="c1"># assign cutoff strategy to problem</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">cutoff_strategy</span> <span class="o">=</span> <span class="n">cutoff_strategy</span>
+
+        <span class="k">return</span> <span class="n">problem</span></div>
+
+<div class="viewcode-block" id="PredictionProblem.to_json"><a class="viewcode-back" href="../../trane.core.html#trane.core.prediction_problem.PredictionProblem.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts Prediction Problems to JSON. It captures the</span>
+<span class="sd">        table_meta, but not the cutoff_strategy</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -305,15 +502,18 @@
 <span class="sd">        json: JSON representation of the Prediction Problem.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;operations&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">op_to_json</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
-                                       <span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">],</span>
-             <span class="s2">&quot;filter_column_order_of_types&quot;</span><span class="p">:</span>
-             <span class="bp">self</span><span class="o">.</span><span class="n">filter_column_order_of_types</span><span class="p">,</span>
-             <span class="s2">&quot;label_generating_column_order_of_types&quot;</span><span class="p">:</span>
-             <span class="bp">self</span><span class="o">.</span><span class="n">label_generating_column_order_of_types</span><span class="p">})</span></div>
+        <span class="n">table_meta_json</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_meta</span><span class="p">:</span>
+            <span class="n">table_meta_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_meta</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
 
-<div class="viewcode-block" id="PredictionProblem.from_json"><a class="viewcode-back" href="../../../trane.core.html#trane.core.prediction_problem.PredictionProblem.from_json">[docs]</a>    <span class="nd">@classmethod</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;operations&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">op_to_json</span><span class="p">(</span><span class="n">op</span><span class="p">))</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">],</span>
+             <span class="s2">&quot;entity_id_col&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_id_col</span><span class="p">,</span>
+             <span class="s2">&quot;label_col&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_col</span><span class="p">,</span>
+             <span class="s2">&quot;table_meta&quot;</span><span class="p">:</span> <span class="n">table_meta_json</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="PredictionProblem.from_json"><a class="viewcode-back" href="../../trane.core.html#trane.core.prediction_problem.PredictionProblem.from_json">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function converts a JSON snippet</span>
@@ -321,249 +521,114 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        json_data: JSON code containing the prediction problem.</span>
+<span class="sd">        json_data: JSON code or dict containing the prediction problem.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        problem: Prediction Problem</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-        <span class="n">operations</span> <span class="o">=</span> <span class="p">[</span><span class="n">op_from_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
-                      <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;operations&#39;</span><span class="p">]]</span>
-        <span class="n">problem</span> <span class="o">=</span> <span class="n">PredictionProblem</span><span class="p">(</span><span class="n">operations</span><span class="p">)</span>
-        <span class="n">problem</span><span class="o">.</span><span class="n">filter_column_order_of_types</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span>
-            <span class="s1">&#39;filter_column_order_of_types&#39;</span><span class="p">]</span>
-        <span class="n">problem</span><span class="o">.</span><span class="n">label_generating_column_order_of_types</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span>
-            <span class="s1">&#39;label_generating_column_order_of_types&#39;</span><span class="p">]</span>
+
+        <span class="c1"># only tries json.loads if json_data is not a dict</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+
+        <span class="n">operations</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">op_from_json</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;operations&#39;</span><span class="p">]]</span>
+        <span class="n">entity_id_col</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;entity_id_col&#39;</span><span class="p">]</span>
+        <span class="n">label_col</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;label_col&#39;</span><span class="p">]</span>
+        <span class="n">table_meta</span> <span class="o">=</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;table_meta&#39;</span><span class="p">))</span>
+
+        <span class="n">problem</span> <span class="o">=</span> <span class="n">PredictionProblem</span><span class="p">(</span>
+            <span class="n">operations</span><span class="o">=</span><span class="n">operations</span><span class="p">,</span>
+            <span class="n">entity_id_col</span><span class="o">=</span><span class="n">entity_id_col</span><span class="p">,</span>
+            <span class="n">label_col</span><span class="o">=</span><span class="n">label_col</span><span class="p">,</span>
+            <span class="n">table_meta</span><span class="o">=</span><span class="n">table_meta</span><span class="p">,</span>
+            <span class="n">cutoff_strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">problem</span></div>
+
+    <span class="k">def</span> <span class="nf">_dill_cutoff_strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Function creates a dill for the problem&#39;s associated cutoff strategy</span>
+
+<span class="sd">        This function requires cutoff time to be assigned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        a dill of the cutoff strategy</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">cutoff_dill</span> <span class="o">=</span> <span class="n">dill</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cutoff_strategy</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cutoff_dill</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Overrides the default implementation&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__dict__</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
 
-
-<span class="k">def</span> <span class="nf">select_by_remaining</span><span class="p">(</span><span class="n">fraction_of_data_target</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span>
-                        <span class="n">filter_column</span><span class="p">,</span> <span class="n">num_random_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                        <span class="n">num_rows_to_execute_on</span><span class="o">=</span><span class="mi">2000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function selects a parameter setting for the</span>
-<span class="sd">    filter operation. The parameter setting that nearest filters</span>
-<span class="sd">    fraction_of_data_target data is chosen.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    fraction_of_data_target: The fraction of the filter operation</span>
-<span class="sd">        aims to keep in the dataset.</span>
-<span class="sd">    dataframe: the relevant data</span>
-<span class="sd">    operation: the filter operation</span>
-<span class="sd">    filter_column: the column name of the column intended to be filtered over</span>
-<span class="sd">    num_random_samples: if there&#39;s more than this many unique values to test,</span>
-<span class="sd">        randomly sample this many values from the dataset</span>
-<span class="sd">    num_rows_to_execute_on: if the dataframe contains more than this number of rows,</span>
-<span class="sd">        randomly select this many rows to use as the dataframe</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    ----------</span>
-<span class="sd">    best_filter_value: parameter setting for the filter operation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing select_by_remaining...&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">REQUIRED_PARAMETERS</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">unique_filter_values</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dataframe</span><span class="p">[</span><span class="n">filter_column</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_filter_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">num_random_samples</span><span class="p">:</span>
-            <span class="n">unique_filter_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">unique_filter_values</span><span class="p">,</span> <span class="n">num_random_samples</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">num_rows_to_execute_on</span><span class="p">:</span>
-            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">num_rows_to_execute_on</span><span class="p">)</span>
-
+    <span class="k">def</span> <span class="nf">_check_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">,</span> <span class="n">actual_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asserts that the expected type matches the actual data&#39;s type.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expected_type: the expected type of the data in TableMeta format</span>
+<span class="sd">        actual_data: a piece of the actual data</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;number of unique filter values: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_filter_values</span><span class="p">)))</span>
+            <span class="s2">&quot;Beginning check type. Expected type is: </span><span class="si">{}</span><span class="s2">, </span><span class="se">\</span>
+<span class="s2">            Actual data is: </span><span class="si">{}</span><span class="s2">, Actual type is: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">expected_type</span><span class="p">,</span>
+                <span class="n">actual_data</span><span class="p">,</span>
+                <span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)))</span>
 
-        <span class="n">best</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">best_filter_value</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">allowed_types_category</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+        <span class="n">allowed_types_bool</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">]</span>
+        <span class="n">allowed_types_text</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+        <span class="n">allowed_types_int</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span>
+        <span class="n">allowed_types_float</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span>
+        <span class="n">allowed_types_time</span> <span class="o">=</span> <span class="n">allowed_types_bool</span> <span class="o">+</span> <span class="n">allowed_types_int</span> <span class="o">+</span> \
+            <span class="n">allowed_types_text</span> <span class="o">+</span> <span class="n">allowed_types_float</span>
+        <span class="n">allowed_types_ordered</span> <span class="o">=</span> <span class="n">allowed_types_bool</span> <span class="o">+</span> \
+            <span class="n">allowed_types_int</span> <span class="o">+</span> <span class="n">allowed_types_text</span> <span class="o">+</span> <span class="n">allowed_types_float</span>
+        <span class="n">allowed_types_id</span> <span class="o">=</span> <span class="n">allowed_types_int</span> <span class="o">+</span> <span class="n">allowed_types_text</span> <span class="o">+</span> \
+            <span class="n">allowed_types_float</span>
 
-        <span class="k">for</span> <span class="n">unique_filter_value</span> <span class="ow">in</span> <span class="n">unique_filter_values</span><span class="p">:</span>
-            <span class="n">loop_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_CATEGORY</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_category</span><span class="p">)</span>
 
-            <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_BOOL</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_bool</span><span class="p">)</span>
 
-            <span class="n">operation</span><span class="o">.</span><span class="n">set_hyper_parameter</span><span class="p">(</span><span class="n">unique_filter_value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_ORDERED</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_ordered</span><span class="p">)</span>
 
-            <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">operation</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
-            <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_df</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_TEXT</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_text</span><span class="p">)</span>
 
-            <span class="n">fraction_of_data_left</span> <span class="o">=</span> <span class="n">count</span> <span class="o">/</span> <span class="n">total</span>
+        <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_INTEGER</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_int</span><span class="p">)</span>
 
-            <span class="n">score</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">fraction_of_data_left</span> <span class="o">-</span> <span class="n">fraction_of_data_target</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">:</span>
-                <span class="n">best</span> <span class="o">=</span> <span class="n">score</span>
-                <span class="n">best_filter_value</span> <span class="o">=</span> <span class="n">unique_filter_value</span>
+        <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_float</span><span class="p">)</span>
 
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;single loop iteration time: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">loop_start_time</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_TIME</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_time</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">best_filter_value</span>
+        <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_IDENTIFIER</span><span class="p">:</span>
+            <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_id</span><span class="p">)</span>
 
-
-<span class="k">def</span> <span class="nf">select_by_diversity</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">label_generating_column</span><span class="p">,</span>
-                        <span class="n">entity_id_column</span><span class="p">,</span> <span class="n">num_random_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                        <span class="n">num_rows_to_execute_on</span><span class="o">=</span><span class="mi">2000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function selects a parameter setting for the</span>
-<span class="sd">    operations, excluding the filter operation.</span>
-<span class="sd">    The parameter setting that maximizes the</span>
-<span class="sd">    entropy of the output data is chosen.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    dataframe: the relevant data</span>
-<span class="sd">    operation: the filter operation</span>
-<span class="sd">    label_generating_column: column name of the</span>
-<span class="sd">        column of interest in the data</span>
-<span class="sd">    entity_id_column: column name of</span>
-<span class="sd">        the column containing entities in the data</span>
-<span class="sd">    num_random_samples: if there&#39;s more than this many unique values to test,</span>
-<span class="sd">        randomly sample this many values from the dataset</span>
-<span class="sd">    num_rows_to_execute_on: if the dataframe contains more than this number of</span>
-<span class="sd">        rows, randomly select this many rows to use as the dataframe</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    best_parameter_value: parameter setting for the operation.</span>
-<span class="sd">    best_df: the dataframe (possibly filtered depending on</span>
-<span class="sd">        num_rows_to_execute_on)</span>
-<span class="sd">        after having the operation applied with the chosen parameter value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing select_by_diversity&quot;</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">REQUIRED_PARAMETERS</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;no parameters required for this operation&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dataframe</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">unique_parameter_values</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dataframe</span><span class="p">[</span><span class="n">label_generating_column</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_parameter_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">num_random_samples</span><span class="p">:</span>
-            <span class="n">unique_parameter_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
-                <span class="n">unique_parameter_values</span><span class="p">,</span> <span class="n">num_random_samples</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">num_rows_to_execute_on</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">num_rows_to_execute_on</span><span class="p">)</span>
-
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;number of unique parameter values: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">unique_parameter_values</span><span class="p">)))</span>
-
-        <span class="n">best</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">best_parameter_value</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">best_df</span> <span class="o">=</span> <span class="n">df</span>
-
-        <span class="k">for</span> <span class="n">unique_parameter_value</span> <span class="ow">in</span> <span class="n">unique_parameter_values</span><span class="p">:</span>
-            <span class="n">loop_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-            <span class="n">operation</span><span class="o">.</span><span class="n">set_hyper_parameter</span><span class="p">(</span><span class="n">unique_parameter_value</span><span class="p">)</span>
-
-            <span class="n">output_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">entity_id_column</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">execute</span><span class="p">)</span>
-
-            <span class="n">entropy</span> <span class="o">=</span> <span class="n">entropy_of_a_list</span><span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="n">output_df</span><span class="p">[</span><span class="n">label_generating_column</span><span class="p">]))</span>
-            <span class="k">if</span> <span class="n">entropy</span> <span class="o">&gt;</span> <span class="n">best</span><span class="p">:</span>
-                <span class="n">best</span> <span class="o">=</span> <span class="n">entropy</span>
-                <span class="n">best_parameter_value</span> <span class="o">=</span> <span class="n">unique_parameter_value</span>
-                <span class="n">best_df</span> <span class="o">=</span> <span class="n">output_df</span>
-
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;single loop iteration time: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">loop_start_time</span><span class="p">))</span>
-
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;found optimal parameter setting: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">best_parameter_value</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="n">best_parameter_value</span><span class="p">,</span> <span class="n">best_df</span>
-
-
-<span class="k">def</span> <span class="nf">entropy_of_a_list</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate the entropy (information) of the list.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    values: list of values</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    ----------</span>
-<span class="sd">    entropy: the entropy or information in the list.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-    <span class="n">total</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span>
-    <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">/</span> <span class="n">total</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">]</span>
-    <span class="n">entropy</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">entropy</span>
-
-
-<span class="k">def</span> <span class="nf">check_type</span><span class="p">(</span><span class="n">expected_type</span><span class="p">,</span> <span class="n">actual_data</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Asserts that the expected type matches the actual data&#39;s type.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    expected_type: the expected type of the data in TableMeta format</span>
-<span class="sd">    actual_data: a piece of the actual data</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    ----------</span>
-<span class="sd">    None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Beginning check type. Expected type is: </span><span class="si">{}</span><span class="s2">, </span><span class="se">\</span>
-<span class="s2">        Actual data is: </span><span class="si">{}</span><span class="s2">, Actual type is: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">expected_type</span><span class="p">,</span>
-            <span class="n">actual_data</span><span class="p">,</span>
-            <span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)))</span>
-
-    <span class="n">allowed_types_category</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
-    <span class="n">allowed_types_bool</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">]</span>
-    <span class="n">allowed_types_text</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">allowed_types_int</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span>
-    <span class="n">allowed_types_float</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span>
-    <span class="n">allowed_types_time</span> <span class="o">=</span> <span class="n">allowed_types_bool</span> <span class="o">+</span> <span class="n">allowed_types_int</span> <span class="o">+</span> \
-        <span class="n">allowed_types_text</span> <span class="o">+</span> <span class="n">allowed_types_float</span>
-    <span class="n">allowed_types_ordered</span> <span class="o">=</span> <span class="n">allowed_types_bool</span> <span class="o">+</span> \
-        <span class="n">allowed_types_int</span> <span class="o">+</span> <span class="n">allowed_types_text</span> <span class="o">+</span> <span class="n">allowed_types_float</span>
-    <span class="n">allowed_types_id</span> <span class="o">=</span> <span class="n">allowed_types_int</span> <span class="o">+</span> <span class="n">allowed_types_text</span> <span class="o">+</span> <span class="n">allowed_types_float</span>
-
-    <span class="k">if</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_CATEGORY</span><span class="p">:</span>
-        <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_category</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_BOOL</span><span class="p">:</span>
-        <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_bool</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_ORDERED</span><span class="p">:</span>
-        <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_ordered</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_TEXT</span><span class="p">:</span>
-        <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_text</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_INTEGER</span><span class="p">:</span>
-        <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_int</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">:</span>
-        <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_float</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_TIME</span><span class="p">:</span>
-        <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_time</span><span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">expected_type</span> <span class="o">==</span> <span class="n">TableMeta</span><span class="o">.</span><span class="n">TYPE_IDENTIFIER</span><span class="p">:</span>
-        <span class="k">assert</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">actual_data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">allowed_types_id</span><span class="p">)</span>
-
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;check_type function received an unexpected type.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span>
+                <span class="s1">&#39;check_type function received an unexpected type.&#39;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -593,11 +658,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Author.
+      &copy;2018, DAI-Lab MIT.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
     </div>
 

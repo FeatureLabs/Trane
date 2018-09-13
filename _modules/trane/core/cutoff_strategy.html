@@ -1,0 +1,152 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>trane.core.cutoff_strategy &#8212; Trane 0.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for trane.core.cutoff_strategy</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<div class="viewcode-block" id="CutoffStrategy"><a class="viewcode-back" href="../../trane.core.html#trane.core.cutoff_strategy.CutoffStrategy">[docs]</a><span class="k">class</span> <span class="nc">CutoffStrategy</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class that holds a CutoffStrategy. This is a measure to prevent leakage</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    generate_fn: a function that generates a cutoff time for a given entity.</span>
+<span class="sd">        input: entity rows</span>
+<span class="sd">        output: a training cutoff in np.datetime64 format</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    CutoffStrategy Instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">generate_fn</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;undescribed cutoff strategy&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_fn</span> <span class="o">=</span> <span class="n">generate_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+
+<div class="viewcode-block" id="CutoffStrategy.generate_cutoffs"><a class="viewcode-back" href="../../trane.core.html#trane.core.cutoff_strategy.CutoffStrategy.generate_cutoffs">[docs]</a>    <span class="k">def</span> <span class="nf">generate_cutoffs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">entity_id_col</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate a cutoff dataframe. Takes about 10 sec to load, but then runs</span>
+<span class="sd">        inNlogN time. (probably. Haven&#39;t checked numpy and pandas code. That&#39;s</span>
+<span class="sd">        just what anecdotally seen in testing)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df: Pandas.DataFrame that problems are generated from</span>
+<span class="sd">        entity_id_col: str name of the entity_id_column</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DF with three columns:</span>
+<span class="sd">        entity_id (indexed) | training_cutoff | test_cutoff</span>
+
+<span class="sd">        training_cutoff and test_cutoff are of type np.datetime64</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># group by the entity id column</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">entity_id_col</span><span class="p">)</span>
+
+        <span class="n">val_arr</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># for each group, compute the training and test cutoff</span>
+        <span class="k">for</span> <span class="n">entity_id</span><span class="p">,</span> <span class="n">df_group</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">:</span>
+
+            <span class="c1"># we re-index by the entity_id column because</span>
+            <span class="c1"># a user&#39;s generate_fn may expect it</span>
+            <span class="n">df_group</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">entity_id_col</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">cutoff</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_fn</span><span class="p">:</span>
+                <span class="n">cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_fn</span><span class="p">(</span>
+                    <span class="n">df_group</span><span class="p">,</span> <span class="n">entity_id</span><span class="p">)</span>
+
+            <span class="c1"># add this data to a long array</span>
+            <span class="n">val_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">))</span>
+
+        <span class="c1"># reshape the array so that it has 3 columns.</span>
+        <span class="c1"># -1 indicates that the number of rows is inferred</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">val_arr</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">cutoff_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">cutoff_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">entity_id_col</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;cutoff&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cutoff_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">entity_id_col</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cutoff_df</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, DAI-Lab MIT.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

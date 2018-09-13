@@ -2,23 +2,24 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>trane.ops package &#8212; trane  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <title>trane.ops package &#8212; Trane 0.2 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="trane.utils package" href="trane.utils.html" />
     <link rel="prev" title="trane.core package" href="trane.core.html" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
@@ -29,6 +30,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="trane-ops-package">
@@ -40,16 +43,19 @@
 <span id="trane-ops-aggregation-ops-module"></span><h2>trane.ops.aggregation_ops module<a class="headerlink" href="#module-trane.ops.aggregation_ops" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="trane.ops.aggregation_ops.AggregationOpBase">
-<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">AggregationOpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#AggregationOpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.AggregationOpBase" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">AggregationOpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#AggregationOpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.AggregationOpBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.op_base.OpBase" title="trane.ops.op_base.OpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.op_base.OpBase</span></code></a></p>
-<p>Super class for all Aggregation Operations. The class is empty and is currently a
-placeholder for any AggregationOpBase level methods we want to make.</p>
+<p>Super class for all Aggregation Operations. The class is empty and is
+currently a placeholder for any AggregationOpBase level methods we want to
+make.</p>
 <p>Aggregation operations represent the 4th and final operation
 in a prediction problem. They aggregate data from many rows into
 a single row. The final output of the problem is the value in that row
-at the label generating column. Aggregation operations are defined as classes
-that inherit the AggregationOpBase class and instantiate the execute method.</p>
-<p>Simply make a new class that follows the requirements below and issue a pull request.</p>
+at the label generating column. Aggregation operations are defined as
+classes that inherit the AggregationOpBase class and instantiate the
+execute method.</p>
+<p>Simply make a new class that follows the requirements below and issue a
+pull request.</p>
 <p>REQUIRED_PARAMETERS: the hyper parameters needed for the operation
 IOTYPES: the input and output types of the operation using TableMeta types
 execute method: transform dataframe according to the operation and return</p>
@@ -59,7 +65,7 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="class">
 <dt id="trane.ops.aggregation_ops.FirstAggregationOp">
-<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">FirstAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#FirstAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.FirstAggregationOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">FirstAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#FirstAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.FirstAggregationOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.aggregation_ops.AggregationOpBase" title="trane.ops.aggregation_ops.AggregationOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.aggregation_ops.AggregationOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.aggregation_ops.FirstAggregationOp.IOTYPES">
@@ -73,14 +79,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.aggregation_ops.FirstAggregationOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#FirstAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.FirstAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#FirstAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.FirstAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.aggregation_ops.CountAggregationOp">
-<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">CountAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#CountAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.CountAggregationOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">CountAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#CountAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.CountAggregationOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.aggregation_ops.AggregationOpBase" title="trane.ops.aggregation_ops.AggregationOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.aggregation_ops.AggregationOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.aggregation_ops.CountAggregationOp.IOTYPES">
@@ -94,14 +100,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.aggregation_ops.CountAggregationOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#CountAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.CountAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#CountAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.CountAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.aggregation_ops.SumAggregationOp">
-<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">SumAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#SumAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.SumAggregationOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">SumAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#SumAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.SumAggregationOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.aggregation_ops.AggregationOpBase" title="trane.ops.aggregation_ops.AggregationOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.aggregation_ops.AggregationOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.aggregation_ops.SumAggregationOp.IOTYPES">
@@ -115,14 +121,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.aggregation_ops.SumAggregationOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#SumAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.SumAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#SumAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.SumAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.aggregation_ops.LastAggregationOp">
-<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">LastAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#LastAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.LastAggregationOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">LastAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#LastAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.LastAggregationOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.aggregation_ops.AggregationOpBase" title="trane.ops.aggregation_ops.AggregationOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.aggregation_ops.AggregationOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.aggregation_ops.LastAggregationOp.IOTYPES">
@@ -136,14 +142,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.aggregation_ops.LastAggregationOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#LastAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.LastAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#LastAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.LastAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.aggregation_ops.LMFAggregationOp">
-<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">LMFAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#LMFAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.LMFAggregationOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.aggregation_ops.</code><code class="descname">LMFAggregationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#LMFAggregationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.LMFAggregationOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.aggregation_ops.AggregationOpBase" title="trane.ops.aggregation_ops.AggregationOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.aggregation_ops.AggregationOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.aggregation_ops.LMFAggregationOp.IOTYPES">
@@ -157,7 +163,7 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.aggregation_ops.LMFAggregationOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/aggregation_ops.html#LMFAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.LMFAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/aggregation_ops.html#LMFAggregationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.aggregation_ops.LMFAggregationOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -167,25 +173,46 @@ execute method: transform dataframe according to the operation and return</p>
 <span id="trane-ops-filter-ops-module"></span><h2>trane.ops.filter_ops module<a class="headerlink" href="#module-trane.ops.filter_ops" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="trane.ops.filter_ops.FilterOpBase">
-<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">FilterOpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#FilterOpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.FilterOpBase" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">FilterOpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#FilterOpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.FilterOpBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.op_base.OpBase" title="trane.ops.op_base.OpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.op_base.OpBase</span></code></a></p>
-<p>Super class for all Filter Operations. The class is empty and is currently a
-placeholder for any FilterOpBase level methods we want to make.</p>
-<p>Filter operations represent the 1st operation
-in a prediction problem. They filter out rows
-based on values in the filter_column. Filter operations are defined as classes
-that inherit the FilterOpBase class and instantiate the execute method.</p>
-<p>Simply make a new class that follows the requirements below and issue a pull request.</p>
+<p>Super class for all Filter Operations. The class is empty and is currently
+a placeholder for any FilterOpBase level methods we want to make.</p>
+<p>Filter operations represent the 1st operation in a prediction problem.
+They filter out rows based on values in the filter_column. Filter
+operations are defined as classes that inherit the FilterOpBase class and
+instantiate the execute method.</p>
+<p>Simply make a new class that follows the requirements below and issue a
+pull request.</p>
 <p>REQUIRED_PARAMETERS: the hyper parameters needed for the operation
 IOTYPES: the input and output types of the operation using TableMeta types
 execute method: transform dataframe according to the operation and return</p>
 <blockquote>
 <div>the new dataframe</div></blockquote>
+<dl class="method">
+<dt id="trane.ops.filter_ops.FilterOpBase.auto_set_hyperparams">
+<code class="descname">auto_set_hyperparams</code><span class="sig-paren">(</span><em>df</em>, <em>filter_col</em>, <em>label_col=None</em>, <em>entity_col=None</em>, <em>num_random_samples=10</em>, <em>num_rows_to_execute_on=2000</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#FilterOpBase.auto_set_hyperparams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.FilterOpBase.auto_set_hyperparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overridden method of op_base. Sets operation hyperparams.
+Unnecessary variables are passed so that the method call is uniform
+across all operations</p>
+<p>df: Dataframe to be tuned to
+filter_col: The column that will be filtered
+label_col: ignored
+entity_col: ignored
+num_random_samples: if there’s more than this many unique values to</p>
+<blockquote>
+<div>test, randomly sample this many values from the dataset</div></blockquote>
+<dl class="docutils">
+<dt>num_rows_to_execute_on: if the dataframe contains more than this number</dt>
+<dd>of rows, randomly select this many rows to use as the dataframe</dd>
+</dl>
+<p>hyperparameter: But this has already been set to the operation</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.filter_ops.AllFilterOp">
-<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">AllFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#AllFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.AllFilterOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">AllFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#AllFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.AllFilterOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.filter_ops.FilterOpBase" title="trane.ops.filter_ops.FilterOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.filter_ops.FilterOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.filter_ops.AllFilterOp.IOTYPES">
@@ -199,14 +226,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.filter_ops.AllFilterOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#AllFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.AllFilterOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#AllFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.AllFilterOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.filter_ops.GreaterFilterOp">
-<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">GreaterFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#GreaterFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.GreaterFilterOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">GreaterFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#GreaterFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.GreaterFilterOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.filter_ops.FilterOpBase" title="trane.ops.filter_ops.FilterOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.filter_ops.FilterOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.filter_ops.GreaterFilterOp.IOTYPES">
@@ -220,14 +247,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.filter_ops.GreaterFilterOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#GreaterFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.GreaterFilterOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#GreaterFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.GreaterFilterOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.filter_ops.EqFilterOp">
-<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">EqFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#EqFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.EqFilterOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">EqFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#EqFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.EqFilterOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.filter_ops.FilterOpBase" title="trane.ops.filter_ops.FilterOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.filter_ops.FilterOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.filter_ops.EqFilterOp.IOTYPES">
@@ -241,14 +268,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.filter_ops.EqFilterOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#EqFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.EqFilterOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#EqFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.EqFilterOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.filter_ops.NeqFilterOp">
-<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">NeqFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#NeqFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.NeqFilterOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">NeqFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#NeqFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.NeqFilterOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.filter_ops.FilterOpBase" title="trane.ops.filter_ops.FilterOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.filter_ops.FilterOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.filter_ops.NeqFilterOp.IOTYPES">
@@ -262,14 +289,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.filter_ops.NeqFilterOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#NeqFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.NeqFilterOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#NeqFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.NeqFilterOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.filter_ops.LessFilterOp">
-<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">LessFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#LessFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.LessFilterOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.filter_ops.</code><code class="descname">LessFilterOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#LessFilterOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.LessFilterOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.filter_ops.FilterOpBase" title="trane.ops.filter_ops.FilterOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.filter_ops.FilterOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.filter_ops.LessFilterOp.IOTYPES">
@@ -283,7 +310,7 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.filter_ops.LessFilterOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/filter_ops.html#LessFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.LessFilterOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/filter_ops.html#LessFilterOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.filter_ops.LessFilterOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -293,7 +320,7 @@ execute method: transform dataframe according to the operation and return</p>
 <span id="trane-ops-op-base-module"></span><h2>trane.ops.op_base module<a class="headerlink" href="#module-trane.ops.op_base" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="trane.ops.op_base.OpBase">
-<em class="property">class </em><code class="descclassname">trane.ops.op_base.</code><code class="descname">OpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/op_base.html#OpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.op_base.</code><code class="descname">OpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_base.html#OpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Super class of all operations.
 All operations should have REQUIRED_PARAMETERS and IOTYPES.</p>
@@ -315,26 +342,99 @@ All operations should have REQUIRED_PARAMETERS and IOTYPES.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="trane.ops.op_base.OpBase.auto_set_hyperparams">
+<code class="descname">auto_set_hyperparams</code><span class="sig-paren">(</span><em>df</em>, <em>label_col</em>, <em>entity_col</em>, <em>filter_col=None</em>, <em>num_random_samples=10</em>, <em>num_rows_to_execute_on=2000</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_base.html#OpBase.auto_set_hyperparams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.auto_set_hyperparams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets hyperparameters for the operation. In most cases (as implemented
+here), this is done by finding threshhold values that maximize column
+diversity. This can be overrideen in subclasses, as it is for
+filter ops.</p>
+<p>df: Dataframe to be tuned to
+label_col: str, name of the column of interest in the data
+entity_col: str, name of the column containing entities ids in the data
+num_random_samples: if there’s more than this many unique values to</p>
+<blockquote>
+<div>test, randomly sample this many values from the dataset</div></blockquote>
+<dl class="docutils">
+<dt>num_rows_to_execute_on: if the dataframe contains more than this number</dt>
+<dd>of rows, randomly select this many rows to use as the dataframe</dd>
+</dl>
+<p>hyperparameter: But this has already been set to the operation</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="trane.ops.op_base.OpBase.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/op_base.html#OpBase.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_base.html#OpBase.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="trane.ops.op_base.OpBase.find_threshhold_by_diversity">
+<code class="descname">find_threshhold_by_diversity</code><span class="sig-paren">(</span><em>df</em>, <em>label_col</em>, <em>entity_col</em>, <em>num_random_samples=10</em>, <em>num_rows_to_execute_on=2000</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_base.html#OpBase.find_threshhold_by_diversity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.find_threshhold_by_diversity" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function selects a parameter setting for the
+operations, excluding the filter operation.
+The parameter setting that maximizes the
+entropy of the output data is chosen.
+Parameters
+———-
+df: the relevant data
+label_col: column name of the column of interest in the data
+entity_col: column name of</p>
+<blockquote>
+<div>the column containing entities in the data</div></blockquote>
+<dl class="docutils">
+<dt>num_random_samples: if there’s more than this many unique values to</dt>
+<dd>test, randomly sample this many values from the dataset</dd>
+<dt>num_rows_to_execute_on: if the dataframe contains more than this number</dt>
+<dd>of rows, randomly select this many rows to use as the dataframe</dd>
+</dl>
+<p>best_parameter_value: parameter setting for the operation.
+best_df: the dataframe (possibly filtered depending on</p>
+<blockquote>
+<div>num_rows_to_execute_on)
+after having the operation applied with the chosen parameter value.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.ops.op_base.OpBase.find_threshhold_by_remaining">
+<code class="descname">find_threshhold_by_remaining</code><span class="sig-paren">(</span><em>fraction_of_data_target</em>, <em>df</em>, <em>col</em>, <em>num_random_samples=10</em>, <em>num_rows_to_execute_on=2000</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_base.html#OpBase.find_threshhold_by_remaining"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.find_threshhold_by_remaining" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function finds and returns a parameter setting for the
+op. The parameter setting that comes closest to the
+fraction_of_data_target data is chosen.</p>
+<dl class="docutils">
+<dt>fraction_of_data_target: The fraction of the filter op</dt>
+<dd>aims to keep in the dataset.</dd>
+</dl>
+<p>df: the relevant data
+col: the column name of the column intended to be operated on
+num_random_samples: if there’s more than this many unique values to</p>
+<blockquote>
+<div>test, randomly sample this many values from the dataset.
+More is better, but slower.</div></blockquote>
+<dl class="docutils">
+<dt>num_rows_to_execute_on: if the df contains more than this number</dt>
+<dd>of rows, randomly select this many rows to use as the df.
+More is better, but slower.</dd>
+</dl>
+<p>best_filter_value: parameter setting for the filter op.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="trane.ops.op_base.OpBase.op_type_check">
-<code class="descname">op_type_check</code><span class="sig-paren">(</span><em>table_meta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/op_base.html#OpBase.op_type_check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.op_type_check" title="Permalink to this definition">¶</a></dt>
+<code class="descname">op_type_check</code><span class="sig-paren">(</span><em>table_meta</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_base.html#OpBase.op_type_check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.op_type_check" title="Permalink to this definition">¶</a></dt>
 <dd><p>Data type check for the operation.
 Operations may change the data type of a column, eg. int -&gt; bool.
-One operation can only be applied on a few data types, eg. <cite>greater</cite> can
-be applied on int but can’t be applied on bool.
-This function checks whether the current operation can be applied on the data.
-It returns the updated TableMeta for next operation or None if it’s not valid.</p>
+One operation can only be applied on a few data types, eg. <cite>greater</cite>
+can be applied on int but can’t be applied on bool.
+This function checks whether the current operation can be applied on
+the data.
+It returns the updated TableMeta for next operation or None if it’s not
+valid.</p>
 <p>table_meta: table meta before this operation.</p>
 <p>table_meta: table meta after this operation. None if not compatable.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="trane.ops.op_base.OpBase.set_hyper_parameter">
-<code class="descname">set_hyper_parameter</code><span class="sig-paren">(</span><em>hyper_parameter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/op_base.html#OpBase.set_hyper_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.set_hyper_parameter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_hyper_parameter</code><span class="sig-paren">(</span><em>hyper_parameter</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_base.html#OpBase.set_hyper_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_base.OpBase.set_hyper_parameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the hyper parameter of the operation.</p>
 <p>hyper_parameter: value for the hyper parameter</p>
 <p>None</p>
@@ -347,7 +447,7 @@ It returns the updated TableMeta for next operation or None if it’s not valid.
 <span id="trane-ops-op-saver-module"></span><h2>trane.ops.op_saver module<a class="headerlink" href="#module-trane.ops.op_saver" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="trane.ops.op_saver.op_to_json">
-<code class="descclassname">trane.ops.op_saver.</code><code class="descname">op_to_json</code><span class="sig-paren">(</span><em>op</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/op_saver.html#op_to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_saver.op_to_json" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trane.ops.op_saver.</code><code class="descname">op_to_json</code><span class="sig-paren">(</span><em>op</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_saver.html#op_to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_saver.op_to_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert an operation object to a JSON string.</p>
 <p>op: an operation object (subclass of OpBase)</p>
 <p>str: a JSON string representing the operation</p>
@@ -355,7 +455,7 @@ It returns the updated TableMeta for next operation or None if it’s not valid.
 
 <dl class="function">
 <dt id="trane.ops.op_saver.op_from_json">
-<code class="descclassname">trane.ops.op_saver.</code><code class="descname">op_from_json</code><span class="sig-paren">(</span><em>json_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/op_saver.html#op_from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_saver.op_from_json" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">trane.ops.op_saver.</code><code class="descname">op_from_json</code><span class="sig-paren">(</span><em>json_data</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/op_saver.html#op_from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.op_saver.op_from_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert an operation from a JSON string
 to an operation object.</p>
 <p>json_data: the JSON string</p>
@@ -367,7 +467,7 @@ to an operation object.</p>
 <span id="trane-ops-row-ops-module"></span><h2>trane.ops.row_ops module<a class="headerlink" href="#module-trane.ops.row_ops" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="trane.ops.row_ops.RowOpBase">
-<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">RowOpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#RowOpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.RowOpBase" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">RowOpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#RowOpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.RowOpBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.op_base.OpBase" title="trane.ops.op_base.OpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.op_base.OpBase</span></code></a></p>
 <p>Super class for all Row Operations. The class is empty and is currently a
 placeholder for any RowOpBase level methods we want to make.</p>
@@ -375,7 +475,8 @@ placeholder for any RowOpBase level methods we want to make.</p>
 in a prediction problem. They apply functions to rows.
 Row operations are defined as classes
 that inherit the RowOpBase class and instantiate the execute method.</p>
-<p>Simply make a new class that follows the requirements below and issue a pull request.</p>
+<p>Simply make a new class that follows the requirements below and issue a
+pull request.</p>
 <p>REQUIRED_PARAMETERS: the hyper parameters needed for the operation
 IOTYPES: the input and output types of the operation using TableMeta types
 execute method: transform dataframe according to the operation and return</p>
@@ -385,7 +486,7 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="class">
 <dt id="trane.ops.row_ops.IdentityRowOp">
-<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">IdentityRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#IdentityRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.IdentityRowOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">IdentityRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#IdentityRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.IdentityRowOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.row_ops.RowOpBase" title="trane.ops.row_ops.RowOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.row_ops.RowOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.row_ops.IdentityRowOp.IOTYPES">
@@ -399,14 +500,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.row_ops.IdentityRowOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#IdentityRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.IdentityRowOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#IdentityRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.IdentityRowOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.row_ops.GreaterRowOp">
-<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">GreaterRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#GreaterRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.GreaterRowOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">GreaterRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#GreaterRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.GreaterRowOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.row_ops.RowOpBase" title="trane.ops.row_ops.RowOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.row_ops.RowOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.row_ops.GreaterRowOp.IOTYPES">
@@ -420,14 +521,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.row_ops.GreaterRowOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#GreaterRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.GreaterRowOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#GreaterRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.GreaterRowOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.row_ops.EqRowOp">
-<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">EqRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#EqRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.EqRowOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">EqRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#EqRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.EqRowOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.row_ops.RowOpBase" title="trane.ops.row_ops.RowOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.row_ops.RowOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.row_ops.EqRowOp.IOTYPES">
@@ -441,14 +542,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.row_ops.EqRowOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#EqRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.EqRowOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#EqRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.EqRowOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.row_ops.NeqRowOp">
-<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">NeqRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#NeqRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.NeqRowOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">NeqRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#NeqRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.NeqRowOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.row_ops.RowOpBase" title="trane.ops.row_ops.RowOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.row_ops.RowOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.row_ops.NeqRowOp.IOTYPES">
@@ -462,14 +563,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.row_ops.NeqRowOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#NeqRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.NeqRowOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#NeqRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.NeqRowOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.row_ops.LessRowOp">
-<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">LessRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#LessRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.LessRowOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">LessRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#LessRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.LessRowOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.row_ops.RowOpBase" title="trane.ops.row_ops.RowOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.row_ops.RowOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.row_ops.LessRowOp.IOTYPES">
@@ -483,14 +584,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.row_ops.LessRowOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#LessRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.LessRowOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#LessRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.LessRowOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.row_ops.ExpRowOp">
-<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">ExpRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#ExpRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.ExpRowOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.row_ops.</code><code class="descname">ExpRowOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#ExpRowOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.ExpRowOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.row_ops.RowOpBase" title="trane.ops.row_ops.RowOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.row_ops.RowOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.row_ops.ExpRowOp.IOTYPES">
@@ -504,7 +605,7 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.row_ops.ExpRowOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/row_ops.html#ExpRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.ExpRowOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/row_ops.html#ExpRowOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.row_ops.ExpRowOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -514,16 +615,18 @@ execute method: transform dataframe according to the operation and return</p>
 <span id="trane-ops-transformation-ops-module"></span><h2>trane.ops.transformation_ops module<a class="headerlink" href="#module-trane.ops.transformation_ops" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="trane.ops.transformation_ops.TransformationOpBase">
-<em class="property">class </em><code class="descclassname">trane.ops.transformation_ops.</code><code class="descname">TransformationOpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/transformation_ops.html#TransformationOpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.TransformationOpBase" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.transformation_ops.</code><code class="descname">TransformationOpBase</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/transformation_ops.html#TransformationOpBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.TransformationOpBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.op_base.OpBase" title="trane.ops.op_base.OpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.op_base.OpBase</span></code></a></p>
-<p>Super class for all Transformation Operations. The class is empty and is currently a
-placeholder for any TransformationOpBase level methods we want to make.</p>
+<p>Super class for all Transformation Operations. The class is empty and is
+currently a placeholder for any TransformationOpBase level methods we want
+to make.</p>
 <p>Transformation operations represent the 3rd operation
 in a prediction problem. They apply functions across rows by
 transforming a dataframe with n rows to a dataframe with at most n-1 rows.
 Transformation operations are defined as classes
 that inherit the RowOpBase class and instantiate the execute method.</p>
-<p>Simply make a new class that follows the requirements below and issue a pull request.</p>
+<p>Simply make a new class that follows the requirements below and issue a
+pull request.</p>
 <p>REQUIRED_PARAMETERS: the hyper parameters needed for the operation
 IOTYPES: the input and output types of the operation using TableMeta types
 execute method: transform dataframe according to the operation and return</p>
@@ -533,7 +636,7 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="class">
 <dt id="trane.ops.transformation_ops.IdentityTransformationOp">
-<em class="property">class </em><code class="descclassname">trane.ops.transformation_ops.</code><code class="descname">IdentityTransformationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/transformation_ops.html#IdentityTransformationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.IdentityTransformationOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.transformation_ops.</code><code class="descname">IdentityTransformationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/transformation_ops.html#IdentityTransformationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.IdentityTransformationOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.transformation_ops.TransformationOpBase" title="trane.ops.transformation_ops.TransformationOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.transformation_ops.TransformationOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.transformation_ops.IdentityTransformationOp.IOTYPES">
@@ -547,14 +650,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.transformation_ops.IdentityTransformationOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/transformation_ops.html#IdentityTransformationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.IdentityTransformationOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/transformation_ops.html#IdentityTransformationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.IdentityTransformationOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.transformation_ops.DiffTransformationOp">
-<em class="property">class </em><code class="descclassname">trane.ops.transformation_ops.</code><code class="descname">DiffTransformationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/transformation_ops.html#DiffTransformationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.DiffTransformationOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.transformation_ops.</code><code class="descname">DiffTransformationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/transformation_ops.html#DiffTransformationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.DiffTransformationOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.transformation_ops.TransformationOpBase" title="trane.ops.transformation_ops.TransformationOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.transformation_ops.TransformationOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.transformation_ops.DiffTransformationOp.IOTYPES">
@@ -568,14 +671,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.transformation_ops.DiffTransformationOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/transformation_ops.html#DiffTransformationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.DiffTransformationOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/transformation_ops.html#DiffTransformationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.DiffTransformationOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="trane.ops.transformation_ops.ObjectFrequencyTransformationOp">
-<em class="property">class </em><code class="descclassname">trane.ops.transformation_ops.</code><code class="descname">ObjectFrequencyTransformationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/transformation_ops.html#ObjectFrequencyTransformationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.ObjectFrequencyTransformationOp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">trane.ops.transformation_ops.</code><code class="descname">ObjectFrequencyTransformationOp</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/transformation_ops.html#ObjectFrequencyTransformationOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.ObjectFrequencyTransformationOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#trane.ops.transformation_ops.TransformationOpBase" title="trane.ops.transformation_ops.TransformationOpBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">trane.ops.transformation_ops.TransformationOpBase</span></code></a></p>
 <dl class="attribute">
 <dt id="trane.ops.transformation_ops.ObjectFrequencyTransformationOp.IOTYPES">
@@ -589,7 +692,7 @@ execute method: transform dataframe according to the operation and return</p>
 
 <dl class="method">
 <dt id="trane.ops.transformation_ops.ObjectFrequencyTransformationOp.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/trane/ops/transformation_ops.html#ObjectFrequencyTransformationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.ObjectFrequencyTransformationOp.execute" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execute</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="trane/ops/transformation_ops.html#ObjectFrequencyTransformationOp.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.ops.transformation_ops.ObjectFrequencyTransformationOp.execute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -602,13 +705,14 @@ execute method: transform dataframe according to the operation and return</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="trane.html">trane package</a><ul>
       <li>Previous: <a href="trane.core.html" title="previous chapter">trane.core package</a></li>
       <li>Next: <a href="trane.utils.html" title="next chapter">trane.utils package</a></li>
@@ -619,7 +723,7 @@ execute method: transform dataframe according to the operation and return</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
+    <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
@@ -633,14 +737,14 @@ execute method: transform dataframe according to the operation and return</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Author.
+      &copy;2018, DAI-Lab MIT.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
       |
-      <a href="_sources/trane.ops.rst.txt"
+      <a href="../_sources/_modules/trane.ops.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,0 +1,243 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>trane.utils package &#8212; Trane 0.2 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="prev" title="trane.ops package" href="trane.ops.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="trane-utils-package">
+<h1>trane.utils package<a class="headerlink" href="#trane-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-trane.utils.data_parser">
+<span id="trane-utils-data-parser-module"></span><h2>trane.utils.data_parser module<a class="headerlink" href="#module-trane.utils.data_parser" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="trane.utils.data_parser.denormalize">
+<code class="descclassname">trane.utils.data_parser.</code><code class="descname">denormalize</code><span class="sig-paren">(</span><em>relationships</em><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/data_parser.html#denormalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.data_parser.denormalize" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Convert csv’s to a dataframe according to relationships. Note, the function</dt>
+<dd>assumes that the csv’s have header columns.</dd>
+</dl>
+<dl class="docutils">
+<dt>relationships: a list containing all the relationships among the csv’s.</dt>
+<dd>the relationships are defined in a list as follows:
+here is how a one to many, one to one or many to many relationship is defined.
+[(parent_csv, parent_join_key, child_csv, child_join_key)].</dd>
+</dl>
+<p>dataframe: a merge of all the csv’s according to the relationships defined in relationships.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="trane.utils.data_parser.parse_data">
+<code class="descclassname">trane.utils.data_parser.</code><code class="descname">parse_data</code><span class="sig-paren">(</span><em>dataframe</em>, <em>table_meta</em><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/data_parser.html#parse_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.data_parser.parse_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert columns specified as time in the table_meta from str objects to datetime objects.</p>
+<p>dataframe: the data
+table_meta: a TableMeta object specifying meta information about the data</p>
+<p>dataframe: with time columns converted from str to datetime.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-trane.utils.table_meta">
+<span id="trane-utils-table-meta-module"></span><h2>trane.utils.table_meta module<a class="headerlink" href="#module-trane.utils.table_meta" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="trane.utils.table_meta.TableMeta">
+<em class="property">class </em><code class="descclassname">trane.utils.table_meta.</code><code class="descname">TableMeta</code><span class="sig-paren">(</span><em>table_meta</em><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/table_meta.html#TableMeta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.table_meta.TableMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Meta data object of a database table.
+More information available here: <a class="reference external" href="https://hdi-project.github.io/MetaData.json/index">https://hdi-project.github.io/MetaData.json/index</a></p>
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.SUPERTYPE">
+<code class="descname">SUPERTYPE</code><em class="property"> = {'boolean': 'categorical', 'categorical': 'categorical', 'float': 'number', 'integer': 'number', 'ordered': 'categorical'}</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.SUPERTYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPES">
+<code class="descname">TYPES</code><em class="property"> = ['categorical', 'boolean', 'ordered', 'text', 'integer', 'float', 'datetime', 'id']</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPE_BOOL">
+<code class="descname">TYPE_BOOL</code><em class="property"> = 'boolean'</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPE_BOOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPE_CATEGORY">
+<code class="descname">TYPE_CATEGORY</code><em class="property"> = 'categorical'</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPE_CATEGORY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPE_FLOAT">
+<code class="descname">TYPE_FLOAT</code><em class="property"> = 'float'</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPE_FLOAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPE_IDENTIFIER">
+<code class="descname">TYPE_IDENTIFIER</code><em class="property"> = 'id'</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPE_IDENTIFIER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPE_INTEGER">
+<code class="descname">TYPE_INTEGER</code><em class="property"> = 'integer'</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPE_INTEGER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPE_ORDERED">
+<code class="descname">TYPE_ORDERED</code><em class="property"> = 'ordered'</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPE_ORDERED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPE_TEXT">
+<code class="descname">TYPE_TEXT</code><em class="property"> = 'text'</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPE_TEXT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="trane.utils.table_meta.TableMeta.TYPE_TIME">
+<code class="descname">TYPE_TIME</code><em class="property"> = 'datetime'</em><a class="headerlink" href="#trane.utils.table_meta.TableMeta.TYPE_TIME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="trane.utils.table_meta.TableMeta.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/table_meta.html#TableMeta.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.table_meta.TableMeta.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a deep copy of self</p>
+<p>None</p>
+<p>copy: a deep copy of self</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="trane.utils.table_meta.TableMeta.from_json">
+<em class="property">classmethod </em><code class="descname">from_json</code><span class="sig-paren">(</span><em>json_data</em><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/table_meta.html#TableMeta.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.table_meta.TableMeta.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load from json str.</p>
+<p>json_data: JSON str</p>
+<p>table_meta: a TableMeta object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.utils.table_meta.TableMeta.get_columns">
+<code class="descname">get_columns</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/table_meta.html#TableMeta.get_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.table_meta.TableMeta.get_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all column names.</p>
+<p>None</p>
+<p>names: all the column names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.utils.table_meta.TableMeta.get_property">
+<code class="descname">get_property</code><span class="sig-paren">(</span><em>column_name</em>, <em>property_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/table_meta.html#TableMeta.get_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.table_meta.TableMeta.get_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get column property.</p>
+<p>column_name: the column this operation applies to
+property_name: the property wanted</p>
+<p>propery: the property</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.utils.table_meta.TableMeta.get_type">
+<code class="descname">get_type</code><span class="sig-paren">(</span><em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/table_meta.html#TableMeta.get_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.table_meta.TableMeta.get_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get type of a column</p>
+<p>column_name: the column</p>
+<p>type: the type of the data in the column</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.utils.table_meta.TableMeta.set_type">
+<code class="descname">set_type</code><span class="sig-paren">(</span><em>column_name</em>, <em>dtype</em><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/table_meta.html#TableMeta.set_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.table_meta.TableMeta.set_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the type of a column.</p>
+<p>column_name: the column this operation applies to
+dtype: the data type to change the column to</p>
+<p>None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.utils.table_meta.TableMeta.to_json">
+<code class="descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="trane/utils/table_meta.html#TableMeta.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.utils.table_meta.TableMeta.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert to json str</p>
+<p>None</p>
+<p>str: JSON str of self</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-trane.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-trane.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="trane.html">trane package</a><ul>
+      <li>Previous: <a href="trane.ops.html" title="previous chapter">trane.ops package</a></li>
+      <li>Next: <a href="../contributing.html" title="next chapter">Contributing</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, DAI-Lab MIT.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="../_sources/_modules/trane.utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

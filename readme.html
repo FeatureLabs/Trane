@@ -1,0 +1,307 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Trane &#8212; Trane 0.2 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="trane package" href="_modules/trane.html" />
+    <link rel="prev" title="Welcome to Trane’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p align="center">
+<img width=40% src="https://dai.lids.mit.edu/wp-content/uploads/2018/06/Trane-logo-300x180.jpg" alt=“Trane_Logo” />
+</p><p align="center">
+<i>Automatically formulating machine learning tasks for temporal datasets"</i>
+</p><a class="reference external image-reference" href="https://travis-ci.org/HDI-Project/Trane"><img alt="Build Status" src="https://travis-ci.org/HDI-Project/Trane.svg?branch=master" /></a>
+<div class="section" id="trane">
+<h1>Trane<a class="headerlink" href="#trane" title="Permalink to this headline">¶</a></h1>
+<p>Trane is a software package for automatically generating prediction problems and generating labels for supervised learning. Trane is a system designed to advance the automation of the machine learning problem solving pipeline.</p>
+<p align="center">
+  <a href="https://www.youtube-nocookie.com/embed/TrK5Tm9ic28"><img src="https://img.youtube.com/vi/TrK5Tm9ic28/0.jpg" width="70%" alt="Trane About Video"></a>
+</p><div class="section" id="prediction-problems">
+<h2>Prediction Problems<a class="headerlink" href="#prediction-problems" title="Permalink to this headline">¶</a></h2>
+<p>In data science, people usually have a few records of an entity and want to predict what will happen to that entity in the future. Trane is designed to generate time-related prediction problems. Trane transforms data meta information into lists of relevant prediction problems and cutoff times. Prediction problems are structured in a formal language described in Operations below. Cutoff times are defined as the last time in the data used for training the classifier. Data after the cutoff time is used for evaluating the classifiers accuracy. Cutoff times are necessary to prevent the classifier from training to test data.</p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>A bank wants to predict how many transactions over 100$ a customer will make in the next year. Assume we have all the transaction records for each client from 2015 to 2017. We want to build a machine learning method to solve the prediction problem. Here is the example database.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">User_id</th>
+<th class="head">Time</th>
+<th class="head">Transaction_id</th>
+<th class="head">Amount</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>u1</td>
+<td>2015</td>
+<td>1-2015-1</td>
+<td>10</td>
+</tr>
+<tr class="row-odd"><td>u1</td>
+<td>2015</td>
+<td>1-2015-2</td>
+<td>200</td>
+</tr>
+<tr class="row-even"><td>u2</td>
+<td>2015</td>
+<td>2-2015-1</td>
+<td>50</td>
+</tr>
+<tr class="row-odd"><td>u1</td>
+<td>2016</td>
+<td>1-2016-1</td>
+<td>10</td>
+</tr>
+<tr class="row-even"><td>u1</td>
+<td>2017</td>
+<td>1-2017-1</td>
+<td>1000</td>
+</tr>
+<tr class="row-odd"><td>u1</td>
+<td>2017</td>
+<td>1-2017-2</td>
+<td>20</td>
+</tr>
+<tr class="row-even"><td>u2</td>
+<td>2017</td>
+<td>2-2017-1</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p>First, we seperate the data by entity. Here the entity is user_id. User u1 for example, has</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">User_id</th>
+<th class="head">Time</th>
+<th class="head">Transaction_id</th>
+<th class="head">Amount</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>u1</td>
+<td>2015</td>
+<td>1-2015-1</td>
+<td>10</td>
+</tr>
+<tr class="row-odd"><td>u1</td>
+<td>2015</td>
+<td>1-2015-2</td>
+<td>200</td>
+</tr>
+<tr class="row-even"><td>u1</td>
+<td>2016</td>
+<td>1-2016-1</td>
+<td>10</td>
+</tr>
+<tr class="row-odd"><td>u1</td>
+<td>2017</td>
+<td>1-2017-1</td>
+<td>1000</td>
+</tr>
+<tr class="row-even"><td>u1</td>
+<td>2017</td>
+<td>1-2017-2</td>
+<td>20</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s consider a <strong>cutoff time</strong> equal to 2016. The data from 2015-2016 will be used as training data in the machine learning model. Data after 2016, that is data from 2016-2017 will be used to evaluate the trained model. Trane outputs a tuple of (entity, cutoff, label) for each prediction problem. A prediction problem is applied to entity data to generate the label. The data from Trane can be fed directly into Feature Tools to perform feature engineering.</p>
+</div>
+<div class="section" id="prediction-problem-generation">
+<h3>Prediction Problem Generation<a class="headerlink" href="#prediction-problem-generation" title="Permalink to this headline">¶</a></h3>
+<p>As shown in the example, a prediction problem is a sequence of operations applied to data as well as a cutoff time.</p>
+<p>In Trane, we generate prediction problems with four operations: Filter Operations, Row Operations, Transformation Operations and Aggregation Operations. Filter operations are applied on the filter_column. Row, Transformation and Aggregation Operations are applied on the label_generating_column.</p>
+</div>
+</div>
+<div class="section" id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h2>
+<p>The workflow of using Trane on a database is as follows:</p>
+<ul class="simple">
+<li>Data scientist writes a <code class="docutils literal notranslate"><span class="pre">meta.json</span></code> describing columns and data types in the new database.</li>
+<li><code class="docutils literal notranslate"><span class="pre">PredictionProblemGenerator</span></code> reads the meta data and generates possible prediction problems. The prediction problems are saved to <code class="docutils literal notranslate"><span class="pre">problems.json</span></code>.</li>
+<li>The data scientist can change parameters to the prediction problems in <code class="docutils literal notranslate"><span class="pre">problems.json</span></code>.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">labeler</span></code> applies prediction problems in <code class="docutils literal notranslate"><span class="pre">problems.json</span></code> to the database <code class="docutils literal notranslate"><span class="pre">data.csv</span></code></li>
+</ul>
+</div>
+<div class="section" id="built-in-operations">
+<h2>Built-in Operations<a class="headerlink" href="#built-in-operations" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>FilterOp<ul>
+<li>IdentityFilterOp</li>
+<li>GreaterFilterOp</li>
+</ul>
+</li>
+<li>RowOp<ul>
+<li>IdentityRowOp</li>
+<li>GreaterRowOp</li>
+</ul>
+</li>
+<li>TransformationOp<ul>
+<li>IdentityTransformationOp</li>
+<li>DiffTransformationOp</li>
+</ul>
+</li>
+<li>AggregationOp<ul>
+<li>FirstAggregationOp</li>
+<li>CountAggregationOp</li>
+<li>SumAggregationOp</li>
+<li>LastAggregationOp</li>
+<li>LMFAggregationOp</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="unit-testing">
+<h2>Unit Testing<a class="headerlink" href="#unit-testing" title="Permalink to this headline">¶</a></h2>
+<p>We use <code class="docutils literal notranslate"><span class="pre">pytest</span></code> to automatically collecting unit testings and <code class="docutils literal notranslate"><span class="pre">pytest-cov</span></code> to measure the coverage of unit testing. The application code is in <code class="docutils literal notranslate"><span class="pre">Trane/trane/</span></code>. The unit testing code is in <code class="docutils literal notranslate"><span class="pre">Trane/tests/</span></code>. To run all unit testing, change directory to <code class="docutils literal notranslate"><span class="pre">Trane</span></code> and execute</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>&gt; pytest --cov=trane tests
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup-install">
+<h2>Setup/Install<a class="headerlink" href="#setup-install" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="clone-from-git">
+<h3>Clone from Git<a class="headerlink" href="#clone-from-git" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>&gt; git clone https://github.com/HDI-Project/Trane.git
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-pip-install">
+<h3>Run pip install<a class="headerlink" href="#run-pip-install" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>&gt; pip3 install Trane/
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="quick-usage">
+<h2>Quick Usage<a class="headerlink" href="#quick-usage" title="Permalink to this headline">¶</a></h2>
+<p>We have <a class="reference external" href="https://github.com/HDI-Project/Trane-Demos/tree/master/IPYNBs">tutorial notebooks here</a>.</p>
+</div>
+<div class="section" id="history">
+<h2>History<a class="headerlink" href="#history" title="Permalink to this headline">¶</a></h2>
+<p>We started working on Trane in 2015. In its first iteration in 2016, we showed that it is possible to formally specify prediction problems using a language and then also created algorithms to generate prediction problems automatically. With other tools to synthesize features and generate models given a prediction problem - we were able to solve problems end-to-end. You can read our paper <a class="reference external" href="https://dai.lids.mit.edu/wp-content/uploads/2017/10/Trane1.pdf">here</a>. Ben Schreck’s <a class="reference external" href="https://dspace.mit.edu/bitstream/handle/1721.1/105963/965551096-MIT.pdf">thesis</a> goes even further to see if we can learn and filter uninteresting problems.</p>
+<p>This repository is a second iteration where we are focusing on usability, apis and showing more use cases and ultimately taking it to real world datasets. Stay tuned for more demos and examples.</p>
+<p>You can find the related theses here:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://dspace.mit.edu/bitstream/handle/1721.1/105963/965551096-MIT.pdf?sequence=1">Towards An Automatic Predictive Question Formulation</a>
+Benjamin J. Schreck, M.E. thesis, MIT Dept of EECS, June 2016. Advisor: Kalyan Veeramachaneni.</li>
+<li><a class="reference external" href="https://dai.lids.mit.edu/wp-content/uploads/2018/05/Alex_MEng_final.pdf">End to End Machine Learning Workflow Using
+Automation Tools</a> Alexander Friedrich Nordin, MIT Dept of EECS, June, 2018. Advisor: Kalyan Veeramachaneni.</li>
+</ul>
+</div>
+<div class="section" id="citing-trane">
+<h2>Citing Trane<a class="headerlink" href="#citing-trane" title="Permalink to this headline">¶</a></h2>
+<p>If you use Trane, please consider citing the following paper:</p>
+<p>Ben Schreck, Kalyan Veeramachaneni. <a class="reference external" href="https://dai.lids.mit.edu/wp-content/uploads/2017/10/Trane1.pdf">What Would a Data Scientist Ask? Automatically Formulating and Solving Predictive Problems.</a> <em>IEEE DSAA 2016</em>, 440-451</p>
+<p>BibTeX entry:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@inproceedings</span><span class="p">{</span><span class="nl">schreck2016would</span><span class="p">,</span>
+  <span class="na">title</span><span class="p">=</span><span class="s">{What Would a Data Scientist Ask? Automatically Formulating and Solving Predictive Problems}</span><span class="p">,</span>
+  <span class="na">author</span><span class="p">=</span><span class="s">{Schreck, Benjamin and Veeramachaneni, Kalyan}</span><span class="p">,</span>
+  <span class="na">booktitle</span><span class="p">=</span><span class="s">{Data Science and Advanced Analytics (DSAA), 2016 IEEE International Conference on}</span><span class="p">,</span>
+  <span class="na">pages</span><span class="p">=</span><span class="s">{440--451}</span><span class="p">,</span>
+  <span class="na">year</span><span class="p">=</span><span class="s">{2016}</span><span class="p">,</span>
+  <span class="na">organization</span><span class="p">=</span><span class="s">{IEEE}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="todo">
+<h2>TODO<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Need an easier way to add customize operations. Currently, external plugin operations are not allowed. The bottleneck is we need to maintain a list of operations so that we can save, load, and iterate over operations. It’s not easy to add an external operation into operation list.</li>
+<li>Currently, all operations are in-place operations. The aggregation ops simply take a record, change the value in the column and return. May not be a good design.</li>
+<li>API for setting thresholds.</li>
+<li>Some NotImplementedError.</li>
+<li>NL system should be independent of Trane. Seems better to generate NL from JSON.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Trane’s documentation!</a></li>
+      <li>Next: <a href="_modules/trane.html" title="next chapter">trane package</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, DAI-Lab MIT.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/readme.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

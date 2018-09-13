@@ -2,17 +2,18 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>trane.utils.data_parser &#8212; trane  documentation</title>
+    <title>trane.utils.data_parser &#8212; Trane 0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -27,6 +28,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for trane.utils.data_parser</h1><div class="highlight"><pre>
@@ -36,7 +39,7 @@
 
 <span class="kn">from</span> <span class="nn">.table_meta</span> <span class="k">import</span> <span class="n">TableMeta</span> <span class="k">as</span> <span class="n">TM</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;df_group_by_entity_id&#39;</span><span class="p">,</span> <span class="s1">&#39;denormalize&#39;</span><span class="p">,</span> <span class="s1">&#39;parse_data&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;denormalize&#39;</span><span class="p">,</span> <span class="s1">&#39;parse_data&#39;</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">CsvMerge</span><span class="p">():</span>
@@ -63,27 +66,7 @@
         <span class="k">return</span> <span class="n">CsvMerge</span><span class="p">(</span><span class="n">csv_names</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="df_group_by_entity_id"><a class="viewcode-back" href="../../../trane.utils.html#trane.utils.data_parser.df_group_by_entity_id">[docs]</a><span class="k">def</span> <span class="nf">df_group_by_entity_id</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">entity_id_column_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a dataframe with an entity_id column to a dictionary mapping entity id&#39;s to their relevant data.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    dataframe: the data</span>
-<span class="sd">    entity_id_column: the column name with entity id&#39;s</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    ----------</span>
-<span class="sd">    dict: Mapping from entity id&#39;s to a dataframe containing only that entity id&#39;s data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">df_groupby</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">entity_id_column_name</span><span class="p">)</span>
-    <span class="n">entities</span> <span class="o">=</span> <span class="n">df_groupby</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-    <span class="n">entity_id_to_df</span> <span class="o">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">df_groupby</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">]</span>
-    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">entity_id_to_df</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="denormalize"><a class="viewcode-back" href="../../../trane.utils.html#trane.utils.data_parser.denormalize">[docs]</a><span class="k">def</span> <span class="nf">denormalize</span><span class="p">(</span><span class="n">relationships</span><span class="p">):</span>
+<div class="viewcode-block" id="denormalize"><a class="viewcode-back" href="../../trane.utils.html#trane.utils.data_parser.denormalize">[docs]</a><span class="k">def</span> <span class="nf">denormalize</span><span class="p">(</span><span class="n">relationships</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert csv&#39;s to a dataframe according to relationships. Note, the function</span>
 <span class="sd">        assumes that the csv&#39;s have header columns.</span>
@@ -132,7 +115,7 @@
     <span class="k">return</span> <span class="n">csv_merge_objs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="parse_data"><a class="viewcode-back" href="../../../trane.utils.html#trane.utils.data_parser.parse_data">[docs]</a><span class="k">def</span> <span class="nf">parse_data</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">table_meta</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_data"><a class="viewcode-back" href="../../trane.utils.html#trane.utils.data_parser.parse_data">[docs]</a><span class="k">def</span> <span class="nf">parse_data</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">table_meta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert columns specified as time in the table_meta from str objects to datetime objects.</span>
 
@@ -155,6 +138,7 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -184,11 +168,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Author.
+      &copy;2018, DAI-Lab MIT.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
     </div>
 

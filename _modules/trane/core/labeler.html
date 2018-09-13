@@ -2,17 +2,18 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>trane.core.labeler &#8212; trane  documentation</title>
+    <title>trane.core.labeler &#8212; Trane 0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
@@ -27,6 +28,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for trane.core.labeler</h1><div class="highlight"><pre>
@@ -40,7 +43,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Labeler&#39;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Labeler"><a class="viewcode-back" href="../../../trane.core.html#trane.core.labeler.Labeler">[docs]</a><span class="k">class</span> <span class="nc">Labeler</span><span class="p">():</span>
+<div class="viewcode-block" id="Labeler"><a class="viewcode-back" href="../../trane.core.html#trane.core.labeler.Labeler">[docs]</a><span class="k">class</span> <span class="nc">Labeler</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object for executing prediction problems on data in order</span>
 <span class="sd">    to generate labels for many prediction problems.</span>
@@ -50,15 +53,14 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="Labeler.execute"><a class="viewcode-back" href="../../../trane.core.html#trane.core.labeler.Labeler.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity_to_data_and_cutoff_dict</span><span class="p">,</span>
-                <span class="n">json_prediction_problems_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Labeler.execute"><a class="viewcode-back" href="../../trane.core.html#trane.core.labeler.Labeler.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">cutoff_df</span><span class="p">,</span> <span class="n">json_prediction_problems_filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate the labels.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        entity_to_data_and_cutoff_dict: mapping from</span>
-<span class="sd">            unique entities to their related data and cutoff times</span>
+<span class="sd">        cutoff_df: dataframe. Each row corresponds to an entity.</span>
+<span class="sd">            entity_id (indexed) | training_cutoff | test_cutoff</span>
 <span class="sd">        json_prediction_problems_filename: filename to read</span>
 <span class="sd">            prediction problems from, structured in JSON.</span>
 
@@ -69,7 +71,10 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="p">(</span><span class="n">prediction_problems</span><span class="p">,</span> <span class="n">table_meta</span><span class="p">,</span> <span class="n">entity_id_column</span><span class="p">,</span> <span class="n">label_generating_column</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">prediction_problems</span><span class="p">,</span>
+            <span class="n">table_meta</span><span class="p">,</span>
+            <span class="n">entity_id_column</span><span class="p">,</span>
+            <span class="n">label_generating_column</span><span class="p">,</span>
             <span class="n">time_column</span><span class="p">)</span> <span class="o">=</span> <span class="n">prediction_problems_from_json_file</span><span class="p">(</span>
                 <span class="n">json_prediction_problems_filename</span><span class="p">)</span>
 
@@ -80,26 +85,31 @@
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">prediction_problem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">prediction_problems</span><span class="p">):</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="n">df_rows</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;in labeller and beginning exuection of problem: </span><span class="si">{}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">prediction_problem</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;in labeller and beginning exuection of problem: </span><span class="si">{}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">prediction_problem</span><span class="p">))</span>
 
-            <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">entity_to_data_and_cutoff_dict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cutoff_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
 
-                <span class="n">df_row</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">entity_data</span><span class="p">,</span> <span class="n">training_cutoff</span><span class="p">,</span> <span class="n">label_cutoff</span> <span class="o">=</span> <span class="n">entity_to_data_and_cutoff_dict</span><span class="p">[</span>
-                    <span class="n">entity</span><span class="p">]</span>
+                <span class="n">entity_id</span> <span class="o">=</span> <span class="n">index</span>
+                <span class="n">training_cutoff</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">label_cutoff</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-                <span class="n">df_pre_label_cutoff_time_result</span><span class="p">,</span> <span class="n">df_all_data_result</span> <span class="o">=</span> <span class="n">prediction_problem</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="n">entity_data</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">label_cutoff</span><span class="p">,</span>
-                    <span class="n">prediction_problem</span><span class="o">.</span><span class="n">filter_column_order_of_types</span><span class="p">,</span>
-                    <span class="n">prediction_problem</span><span class="o">.</span><span class="n">label_generating_column_order_of_types</span><span class="p">)</span>
+                <span class="n">entity_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">entity_id</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+                <span class="p">(</span><span class="n">df_pre_label_cutoff_time_result</span><span class="p">,</span>
+                    <span class="n">df_all_data_result</span><span class="p">)</span> <span class="o">=</span> <span class="n">prediction_problem</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">entity_data</span><span class="p">,</span> <span class="n">time_column</span><span class="p">,</span> <span class="n">label_cutoff</span><span class="p">,</span>
+                        <span class="n">prediction_problem</span><span class="o">.</span><span class="n">filter_column_order_of_types</span><span class="p">,</span>
+                        <span class="n">prediction_problem</span><span class="o">.</span><span class="n">label_generating_column_order_of_types</span><span class="p">)</span> <span class="c1"># noqa</span>
 
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_pre_label_cutoff_time_result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">label_precutoff_time</span> <span class="o">=</span> <span class="n">df_pre_label_cutoff_time_result</span><span class="p">[</span>
                         <span class="n">label_generating_column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_pre_label_cutoff_time_result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Received output from prediction problem </span><span class="se">\</span>
-<span class="s2">                                    execution on pre-label cutoff data with more than one result.&quot;</span><span class="p">)</span>
+<span class="s2">                                    execution on pre-label cutoff data with </span><span class="se">\</span>
+<span class="s2">                                    more than one result.&quot;</span><span class="p">)</span>
                     <span class="n">label_precutoff_time</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">label_precutoff_time</span> <span class="o">=</span> <span class="kc">None</span>
@@ -113,19 +123,21 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">label_postcutoff_time</span> <span class="o">=</span> <span class="kc">None</span>
 
-                <span class="n">df_row</span> <span class="o">=</span> <span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">label_precutoff_time</span><span class="p">,</span>
+                <span class="n">df_row</span> <span class="o">=</span> <span class="p">[</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">label_precutoff_time</span><span class="p">,</span>
                           <span class="n">label_postcutoff_time</span><span class="p">,</span> <span class="n">training_cutoff</span><span class="p">,</span> <span class="n">label_cutoff</span><span class="p">]</span>
                 <span class="n">df_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_row</span><span class="p">)</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished labelling problem: </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2">. Time elapsed: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">idx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prediction_problems</span><span class="p">),</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Finished labelling problem: </span><span class="si">{}</span><span class="s2"> of </span><span class="si">{}</span><span class="s2">.Time elapsed: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">idx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prediction_problems</span><span class="p">),</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
             <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">dfs</span></div></div>
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -155,11 +167,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Author.
+      &copy;2018, DAI-Lab MIT.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
     </div>
 

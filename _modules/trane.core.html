@@ -1,0 +1,294 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>trane.core package &#8212; Trane 0.2 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="trane.ops package" href="trane.ops.html" />
+    <link rel="prev" title="trane package" href="trane.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="trane-core-package">
+<h1>trane.core package<a class="headerlink" href="#trane-core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-trane.core.cutoff_strategy">
+<span id="trane-core-cutoff-strategy-module"></span><h2>trane.core.cutoff_strategy module<a class="headerlink" href="#module-trane.core.cutoff_strategy" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="trane.core.cutoff_strategy.CutoffStrategy">
+<em class="property">class </em><code class="descclassname">trane.core.cutoff_strategy.</code><code class="descname">CutoffStrategy</code><span class="sig-paren">(</span><em>generate_fn</em>, <em>description='undescribed cutoff strategy'</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/cutoff_strategy.html#CutoffStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.cutoff_strategy.CutoffStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that holds a CutoffStrategy. This is a measure to prevent leakage</p>
+<dl class="docutils">
+<dt>generate_fn: a function that generates a cutoff time for a given entity.</dt>
+<dd>input: entity rows
+output: a training cutoff in np.datetime64 format</dd>
+</dl>
+<p>CutoffStrategy Instance</p>
+<dl class="method">
+<dt id="trane.core.cutoff_strategy.CutoffStrategy.generate_cutoffs">
+<code class="descname">generate_cutoffs</code><span class="sig-paren">(</span><em>df</em>, <em>entity_id_col</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/cutoff_strategy.html#CutoffStrategy.generate_cutoffs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.cutoff_strategy.CutoffStrategy.generate_cutoffs" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a cutoff dataframe. Takes about 10 sec to load, but then runs
+inNlogN time. (probably. Haven’t checked numpy and pandas code. That’s
+just what anecdotally seen in testing)</p>
+<p>df: Pandas.DataFrame that problems are generated from
+entity_id_col: str name of the entity_id_column</p>
+<p>DF with three columns:
+entity_id (indexed) | training_cutoff | test_cutoff</p>
+<p>training_cutoff and test_cutoff are of type np.datetime64</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-trane.core.labeler">
+<span id="trane-core-labeler-module"></span><h2>trane.core.labeler module<a class="headerlink" href="#module-trane.core.labeler" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="trane.core.labeler.Labeler">
+<em class="property">class </em><code class="descclassname">trane.core.labeler.</code><code class="descname">Labeler</code><a class="reference internal" href="trane/core/labeler.html#Labeler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.labeler.Labeler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object for executing prediction problems on data in order
+to generate labels for many prediction problems.
+The execute method performs the labelling operation.</p>
+<dl class="method">
+<dt id="trane.core.labeler.Labeler.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>data</em>, <em>cutoff_df</em>, <em>json_prediction_problems_filename</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/labeler.html#Labeler.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.labeler.Labeler.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the labels.</p>
+<dl class="docutils">
+<dt>cutoff_df: dataframe. Each row corresponds to an entity.</dt>
+<dd>entity_id (indexed) | training_cutoff | test_cutoff</dd>
+<dt>json_prediction_problems_filename: filename to read</dt>
+<dd>prediction problems from, structured in JSON.</dd>
+</dl>
+<dl class="docutils">
+<dt>dfs: a list of DataFrames. One dataframe for each problem.</dt>
+<dd>Each dataframe contains entities, cutoff times and labels.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-trane.core.prediction_problem">
+<span id="trane-core-prediction-problem-module"></span><h2>trane.core.prediction_problem module<a class="headerlink" href="#module-trane.core.prediction_problem" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="trane.core.prediction_problem.PredictionProblem">
+<em class="property">class </em><code class="descclassname">trane.core.prediction_problem.</code><code class="descname">PredictionProblem</code><span class="sig-paren">(</span><em>operations</em>, <em>entity_id_col</em>, <em>label_col</em>, <em>table_meta=None</em>, <em>cutoff_strategy=None</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem.html#PredictionProblem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem.PredictionProblem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Prediction Problem is made up of a series of Operations. It also contains
+information about the types expected as the input and output of
+each operation.</p>
+<dl class="method">
+<dt id="trane.core.prediction_problem.PredictionProblem.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem.html#PredictionProblem.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem.PredictionProblem.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes the problem’s operations on a dataframe. Generates</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="trane.core.prediction_problem.PredictionProblem.from_json">
+<em class="property">classmethod </em><code class="descname">from_json</code><span class="sig-paren">(</span><em>json_data</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem.html#PredictionProblem.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem.PredictionProblem.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function converts a JSON snippet
+to a prediction problem</p>
+<p>json_data: JSON code or dict containing the prediction problem.</p>
+<p>problem: Prediction Problem</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.core.prediction_problem.PredictionProblem.is_valid">
+<code class="descname">is_valid</code><span class="sig-paren">(</span><em>table_meta=None</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem.html#PredictionProblem.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem.PredictionProblem.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Typechecking for operations. Insures that their input and output types
+match. Allows a user to use the problem’s existing table_meta, or pass
+in a new one</p>
+<p>table_meta: TableMeta object. Contains meta information about the data</p>
+<p>Bool</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="trane.core.prediction_problem.PredictionProblem.load">
+<em class="property">classmethod </em><code class="descname">load</code><span class="sig-paren">(</span><em>json_file_path</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem.html#PredictionProblem.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem.PredictionProblem.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a prediction problem from json file.
+If the file links to a dill (binary) cutoff_srategy, also load that
+and assign it to the prediction problem.</p>
+<p>json_file_path: str, path and filename for the json file</p>
+<p>PredictionProblem</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.core.prediction_problem.PredictionProblem.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>path</em>, <em>problem_name</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem.html#PredictionProblem.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem.PredictionProblem.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the pediction problem in two files.</p>
+<p>One file is a dill of the cutoff strategy.
+The other file is the jsonified operations and the relative path to
+that cutoff strategy.</p>
+<p>path: str - the directory in which save the problem
+problem_name: str - the filename to assign the problem</p>
+<p>dict
+{‘saved_correctly’: bool,</p>
+<blockquote>
+<div>‘directory_created’: bool,
+‘problem_name’: str}</div></blockquote>
+<p>The new problem_name may have changed due to a filename collision</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.core.prediction_problem.PredictionProblem.to_json">
+<code class="descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem.html#PredictionProblem.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem.PredictionProblem.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function converts Prediction Problems to JSON. It captures the
+table_meta, but not the cutoff_strategy</p>
+<p>None</p>
+<p>json: JSON representation of the Prediction Problem.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-trane.core.prediction_problem_generator">
+<span id="trane-core-prediction-problem-generator-module"></span><h2>trane.core.prediction_problem_generator module<a class="headerlink" href="#module-trane.core.prediction_problem_generator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="trane.core.prediction_problem_generator.PredictionProblemGenerator">
+<em class="property">class </em><code class="descclassname">trane.core.prediction_problem_generator.</code><code class="descname">PredictionProblemGenerator</code><span class="sig-paren">(</span><em>table_meta</em>, <em>entity_col</em>, <em>label_col</em>, <em>filter_col</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem_generator.html#PredictionProblemGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem_generator.PredictionProblemGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object for generating prediction problems on data.</p>
+<dl class="method">
+<dt id="trane.core.prediction_problem_generator.PredictionProblemGenerator.ensure_valid_inputs">
+<code class="descname">ensure_valid_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem_generator.html#PredictionProblemGenerator.ensure_valid_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem_generator.PredictionProblemGenerator.ensure_valid_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>TypeChecking for the problem generator entity_col
+and label_col. Errors if types don’t match up.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="trane.core.prediction_problem_generator.PredictionProblemGenerator.generate">
+<code class="descname">generate</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem_generator.html#PredictionProblemGenerator.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem_generator.PredictionProblemGenerator.generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the prediction problems. The prediction problems operations
+hyper parameters are also set.</p>
+<p>df: the data to be parsed</p>
+<p>problems: a list of Prediction Problem objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-trane.core.prediction_problem_saver">
+<span id="trane-core-prediction-problem-saver-module"></span><h2>trane.core.prediction_problem_saver module<a class="headerlink" href="#module-trane.core.prediction_problem_saver" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="trane.core.prediction_problem_saver.prediction_problems_to_json_file">
+<code class="descclassname">trane.core.prediction_problem_saver.</code><code class="descname">prediction_problems_to_json_file</code><span class="sig-paren">(</span><em>prediction_problems</em>, <em>table_meta</em>, <em>entity_id_column</em>, <em>label_generating_column</em>, <em>time_column</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem_saver.html#prediction_problems_to_json_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem_saver.prediction_problems_to_json_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of prediction problems to a JSON file</p>
+<p>prediction_problems: a list of Prediction Problems.
+table_meta: TableMeta object. Contains</p>
+<blockquote>
+<div>meta information about the data</div></blockquote>
+<dl class="docutils">
+<dt>entity_id_column: column name of</dt>
+<dd>the column containing entities in the data</dd>
+<dt>label_generating_column: column name of the</dt>
+<dd>column of interest in the data</dd>
+<dt>time_column: column name of the column</dt>
+<dd>containing time information in the data</dd>
+</dl>
+<p>filename: name of the file to write to. must end in .json</p>
+<p>None</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="trane.core.prediction_problem_saver.prediction_problems_from_json_file">
+<code class="descclassname">trane.core.prediction_problem_saver.</code><code class="descname">prediction_problems_from_json_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="trane/core/prediction_problem_saver.html#prediction_problems_from_json_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#trane.core.prediction_problem_saver.prediction_problems_from_json_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read Prediction Problems from a JSON structured file</p>
+<p>filename: filename to read problems from.</p>
+<p>prediction_problems: a list of Prediction Problems.
+table_meta: TableMeta object. Contains</p>
+<blockquote>
+<div>meta information about the data</div></blockquote>
+<dl class="docutils">
+<dt>entity_id_column: column name of</dt>
+<dd>the column containing entities in the data</dd>
+<dt>label_generating_column: column name of the</dt>
+<dd>column of interest in the data</dd>
+<dt>time_column: column name of the column</dt>
+<dd>containing time information in the data</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-trane.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-trane.core" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="trane.html">trane package</a><ul>
+      <li>Previous: <a href="trane.html" title="previous chapter">trane package</a></li>
+      <li>Next: <a href="trane.ops.html" title="next chapter">trane.ops package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, DAI-Lab MIT.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="../_sources/_modules/trane.core.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
