@@ -26,7 +26,7 @@ class PredictionProblem:
     """
 
     def __init__(self, operations, entity_id_col,
-                 label_col, table_meta=None, cutoff_strategy=None):
+                 label_col, table_meta=None, cutoff_strategy=None, window_size=None):
         """
         Parameters
         ----------
@@ -42,6 +42,7 @@ class PredictionProblem:
         self.label_col = label_col
         self.table_meta = table_meta
         self.cutoff_strategy = cutoff_strategy
+        self.window_size = window_size
 
     def is_valid(self, table_meta=None):
         '''
