@@ -6,6 +6,7 @@ import warnings
 import dill
 import numpy as np
 import pandas as pd
+import composeml as cp
 
 from ..ops.aggregation_ops import *  # noqa
 from ..ops.filter_ops import *  # noqa
@@ -26,7 +27,7 @@ class PredictionProblem:
     """
 
     def __init__(self, operations, entity_id_col,
-                 label_col, table_meta=None, cutoff_strategy=None, window_size=None):
+                 label_col, table_meta=None, cutoff_strategy=None, time_index=None, window_size=None):
         """
         Parameters
         ----------
@@ -42,7 +43,12 @@ class PredictionProblem:
         self.label_col = label_col
         self.table_meta = table_meta
         self.cutoff_strategy = cutoff_strategy
-        self.window_size = window_size
+
+        self._label_maker = cp.LabelMaker(entity_id_col,
+            time_index=time_index,
+            labeling_function=self._execute_operations_on_df,
+            window_size=window_size
+        )
 
     def is_valid(self, table_meta=None):
         '''
@@ -74,7 +80,7 @@ class PredictionProblem:
 
         return True
 
-    def execute(self, df):
+    def execute(self, df, num_examples_per_instance, minimum_data=None, gap=None, drop_empty=True, verbose=True, *args, **kwargs):
         '''
         Executes the problem's operations on a dataframe. Generates
         '''
@@ -85,29 +91,19 @@ class PredictionProblem:
                 'problem\'s table meta. Therefore, the problem is not '
                 'valid.')
 
-        df = df.copy()
-        grouped = df.groupby(self.entity_id_col)
+        lt = self._label_maker.search(
+            df=df,
+            num_examples_per_instance=num_examples_per_instance,
+            minimum_data=minimum_data
+            gap=gap,
+            drop_empty=drop_empty,
+            verbose=verbose,
+            *args,
+            **kwargs,
 
-        res_dict = {}
+        )
 
-        for entity_id, df_group in grouped:
-
-            # generate the a cutoff date if the problem has a cutoff strategy
-            cutoff = None
-            if self.cutoff_strategy:
-                cutoff = self.cutoff_strategy.generate_fn(
-                    df_group, self.entity_id_col)
-
-            label_series = self._execute_operations_on_df(
-                df_group)[self.label_col]
-
-            # add the label to the results dictionary
-            res_dict = self._insert_single_label_into_dict(
-                entity_id, label_series, cutoff, res_dict)
-
-        res = pd.DataFrame.from_dict(data=res_dict, orient='index')
-        self._rename_columns(res, [self.entity_id_col, 'cutoff', 'label'])
-        return res
+        return lt
 
     def _insert_single_label_into_dict(
             self, entity_id, label_series, cutoff, res_dict):
