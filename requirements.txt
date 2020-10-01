@@ -10,3 +10,4 @@ featuretools
 matplotlib
 sklearn
 scikit-plot
+composeml>=0.5.0
