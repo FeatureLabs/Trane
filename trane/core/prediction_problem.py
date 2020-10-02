@@ -23,8 +23,7 @@ class PredictionProblem:
     each operation.
     """
 
-    def __init__(self, operations, entity_col, time_col,
-                 table_meta=None, cutoff_strategy=None):
+    def __init__(self, operations, entity_col, time_col, table_meta=None, cutoff_strategy=None, window_size=None):
         """
         Parameters
         ----------
@@ -42,8 +41,9 @@ class PredictionProblem:
         self.cutoff_strategy = cutoff_strategy
         self.label_type = None
 
-        self._label_maker = cp.LabelMaker(entity_id_col,
-            time_index=time_index,
+        self._label_maker = cp.LabelMaker(
+            target_entity=entity_col,
+            time_index=time_col,
             labeling_function=self._execute_operations_on_df,
             window_size=window_size
         )
