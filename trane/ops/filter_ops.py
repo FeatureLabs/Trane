@@ -69,66 +69,50 @@ class FilterOpBase(OpBase):
 
 class AllFilterOp(FilterOpBase):
     REQUIRED_PARAMETERS = []
-    IOTYPES = [(TM.TYPE_CATEGORY, TM.TYPE_CATEGORY),
-               (TM.TYPE_BOOL, TM.TYPE_BOOL),
-               (TM.TYPE_ORDERED, TM.TYPE_ORDERED),
-               (TM.TYPE_TEXT, TM.TYPE_TEXT),
-               (TM.TYPE_INTEGER, TM.TYPE_INTEGER),
-               (TM.TYPE_FLOAT, TM.TYPE_FLOAT),
-               (TM.TYPE_TIME, TM.TYPE_TIME),
-               (TM.TYPE_IDENTIFIER, TM.TYPE_IDENTIFIER)]
+    IOTYPES = []
+
+    def op_type_check(self, table_meta):
+        return table_meta
 
     def execute(self, dataframe):
         return dataframe
 
 
 class EqFilterOp(FilterOpBase):
-    REQUIRED_PARAMETERS = [{"threshold": TM.TYPE_INTEGER}]
-    IOTYPES = [(
-        TM.TYPE_BOOL, TM.TYPE_BOOL), (TM.TYPE_INTEGER,
-                                      TM.TYPE_INTEGER), (
-                                          TM.TYPE_FLOAT, TM.TYPE_FLOAT)]
+    REQUIRED_PARAMETERS = [{"threshold": TM.TYPE_CATEGORY}]
+    IOTYPES = [(TM.TYPE_CATEGORY, TM.TYPE_CATEGORY),
+               (TM.TYPE_IDENTIFIER, TM.TYPE_IDENTIFIER)]
 
     def execute(self, dataframe):
-        dataframe = dataframe.copy()
         return dataframe[dataframe[self.column_name] ==
                          self.hyper_parameter_settings["threshold"]]
 
 
 class NeqFilterOp(FilterOpBase):
-    REQUIRED_PARAMETERS = [{"threshold": TM.TYPE_INTEGER}]
-    IOTYPES = [(
-        TM.TYPE_BOOL, TM.TYPE_BOOL), (TM.TYPE_INTEGER,
-                                      TM.TYPE_INTEGER), (
-                                          TM.TYPE_FLOAT, TM.TYPE_FLOAT)]
+    REQUIRED_PARAMETERS = [{"threshold": TM.TYPE_CATEGORY}]
+    IOTYPES = [(TM.TYPE_CATEGORY, TM.TYPE_CATEGORY),
+               (TM.TYPE_IDENTIFIER, TM.TYPE_IDENTIFIER)]
 
     def execute(self, dataframe):
-        dataframe = dataframe.copy()
         return dataframe[dataframe[self.column_name] !=
                          self.hyper_parameter_settings["threshold"]]
 
 
 class GreaterFilterOp(FilterOpBase):
     REQUIRED_PARAMETERS = [{"threshold": TM.TYPE_INTEGER}]
-    IOTYPES = [(
-        TM.TYPE_BOOL, TM.TYPE_BOOL), (TM.TYPE_INTEGER,
-                                      TM.TYPE_INTEGER), (
-                                          TM.TYPE_FLOAT, TM.TYPE_FLOAT)]
+    IOTYPES = [(TM.TYPE_INTEGER, TM.TYPE_INTEGER),
+               (TM.TYPE_FLOAT, TM.TYPE_FLOAT)]
 
     def execute(self, dataframe):
-        dataframe = dataframe.copy()
         return dataframe[dataframe[self.column_name] >
                          self.hyper_parameter_settings["threshold"]]
 
 
 class LessFilterOp(FilterOpBase):
     REQUIRED_PARAMETERS = [{"threshold": TM.TYPE_INTEGER}]
-    IOTYPES = [(
-        TM.TYPE_BOOL, TM.TYPE_BOOL), (TM.TYPE_INTEGER,
-                                      TM.TYPE_INTEGER), (
-                                          TM.TYPE_FLOAT, TM.TYPE_FLOAT)]
+    IOTYPES = [(TM.TYPE_INTEGER, TM.TYPE_INTEGER),
+               (TM.TYPE_FLOAT, TM.TYPE_FLOAT)]
 
     def execute(self, dataframe):
-        dataframe = dataframe.copy()
         return dataframe[dataframe[self.column_name] <
                          self.hyper_parameter_settings["threshold"]]
