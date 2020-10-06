@@ -95,36 +95,18 @@ class PredictionProblem:
                 'problem\'s table meta. Therefore, the problem is not '
                 'valid.')
 
-        assert self.cutoff_strategy is not None
+        lt = self._label_maker.search(
+            df=df,
+            num_examples_per_instance=num_examples_per_instance,
+            minimum_data=minimum_data,
+            gap=gap,
+            drop_empty=drop_empty,
+            verbose=verbose,
+            *args,
+            **kwargs
+        )
 
-        df = df.copy()
-        cutoffs = self.cutoff_strategy.generate_cutoffs(df)
-        cutoffs.set_index([self.entity_col], inplace=True)
-
-        res_list = []
-
-        grouped = df.groupby(self.entity_col)
-
-        for entity_name, sub_df in grouped:
-            sub_cutoffs = cutoffs.loc[entity_name]
-
-            for row_id, row in sub_cutoffs.iterrows():
-                cutoff_st = row['cutoff_st']
-                cutoff_ed = row['cutoff_ed']
-
-                df_labeling = sub_df.loc[
-                    (sub_df[self.time_col] >= cutoff_st) & (sub_df[self.time_col] < cutoff_ed)]
-
-                label = self._execute_operations_on_df(
-                    df_labeling)
-
-                # add the label to the results dictionary
-                res_list.append((entity_name, cutoff_st, cutoff_ed, label))
-
-        res = pd.DataFrame(data=res_list,
-                           columns=[self.entity_col, 'cutoff_st', 'cutoff_ed', 'label'])
-        res.set_index([self.entity_col, 'cutoff_st', 'cutoff_ed'], inplace=True)
-        return res
+        return lt
 
     def _execute_operations_on_df(self, df):
         '''
@@ -466,3 +448,10 @@ class PredictionProblem:
         else:
             logging.critical(
                 'check_type function received an unexpected type.')
+
+    def set_parameters(self, **parameters):
+        for operation in self.operations:
+            settings = operation.hyper_parameter_settings
+            for parameter in operation.REQUIRED_PARAMETERS:
+                for key in parameter:
+                    settings[key] = parameters.get(key, 0)
